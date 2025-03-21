@@ -45,7 +45,7 @@ export function EventTrack(props: EventTrackProps) {
   const EVENT_TRACK_PADDING_RIGHT_PX = 12
   const EVENT_PADDING_PX = 2
   const EVENT_SNAP_MINUTES = 15
-  const MIN_RESIZE_MINUTES = 30
+  const MIN_DRAG_RESIZE_MINUTES = 30
 
   const [wrapperElement, setWrapperElement] = useState<HTMLDivElement | null>(
     null
@@ -85,23 +85,34 @@ export function EventTrack(props: EventTrackProps) {
     }
 
     const startOffsetToTrackMinutes = eventStartMinutes - trackStartMinutes
-    const startOffsetToTrackPx =
+    const eventTop =
       (startOffsetToTrackMinutes / props.sizeInMinutes) *
       wrapperResizeObserverEntry.contentRect.height
 
+    const top = Math.max(0, eventTop)
+    const invisibleTop = top - eventTop
+
     const eventLengthMinutes = eventEndMinutes - eventStartMinutes
-    const eventLengthPx =
+    const eventHeight =
       (eventLengthMinutes / props.sizeInMinutes) *
         wrapperResizeObserverEntry.contentRect.height -
       EVENT_PADDING_PX
+
+    const height = Math.max(
+      0,
+      Math.min(
+        eventHeight - invisibleTop,
+        wrapperResizeObserverEntry.contentRect.height - top
+      )
+    )
 
     const width = trackWidthPx / columns - EVENT_PADDING_PX
     const left = ((column - 1) * trackWidthPx) / columns
 
     return {
-      top: startOffsetToTrackPx,
+      top,
       left,
-      height: eventLengthPx,
+      height,
       width,
     }
   }
@@ -132,7 +143,7 @@ export function EventTrack(props: EventTrackProps) {
     const maxStartMinutes =
       Math.round(props.start.getTime() / 1000 / 60) +
       props.sizeInMinutes -
-      eventLengthMinutes
+      MIN_DRAG_RESIZE_MINUTES
 
     const startMinutesClamped = Math.min(
       Math.max(startMinutes, trackStartMinutes),
@@ -174,7 +185,7 @@ export function EventTrack(props: EventTrackProps) {
     const startMinutes = Math.round(eventStart.getTime() / 1000 / 60)
 
     const endMinutesClamped = Math.max(
-      startMinutes + MIN_RESIZE_MINUTES,
+      startMinutes + MIN_DRAG_RESIZE_MINUTES,
       Math.min(endMinutes, trackStartMinutes + props.sizeInMinutes)
     )
 
