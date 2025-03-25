@@ -2,16 +2,16 @@ import { Locale } from 'date-fns'
 import { useInvisibleDragHandlers } from '../hooks/use-invisible-drag-handlers'
 import { DragEvent, useMemo, useState } from 'react'
 import { ResizableEventView } from './resizable-event-view'
-import { EventView } from './event-view'
-import { useEventArea } from './event-area'
 
 export interface DraggableEventViewProps {
   id: string
   title: string
   start: Date
   end: Date
-  column: number
-  columns: number
+  top: number
+  left: number
+  width: number
+  height: number
   locale?: Locale
   onStartEndChanged?: (start: Date, end: Date) => void
 }
@@ -86,33 +86,21 @@ export function DraggableEventView(props: DraggableEventViewProps) {
   }
 
   return (
-    <>
-      <ResizableEventView
-        title={props.title}
-        start={props.start}
-        end={props.end}
-        column={props.column}
-        columns={props.columns}
-        draggable
-        onDrag={handleDrag}
-        onDragStart={onDragStart}
-        onDragEnd={onDragEnd}
-        isTransparent={!!draggingEventDates}
-        locale={props.locale}
-        onResized={props.onStartEndChanged}
-      />
-
-      {draggingEventDates && (
-        <EventView
-          title={props.title}
-          start={draggingEventDates.start}
-          end={draggingEventDates.end}
-          column={1}
-          columns={1}
-          locale={props.locale}
-          isFloating
-        />
-      )}
-    </>
+    <ResizableEventView
+      title={props.title}
+      start={props.start}
+      end={props.end}
+      top={props.top}
+      left={props.left}
+      width={props.width}
+      height={props.height}
+      draggable
+      onDrag={handleDrag}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      isTransparent={!!draggingEventDates}
+      locale={props.locale}
+      onResized={props.onStartEndChanged}
+    />
   )
 }

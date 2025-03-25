@@ -8,8 +8,10 @@ export interface ResizableEventViewProps {
   title: string
   start: Date
   end: Date
-  column: number
-  columns: number
+  top: number
+  left: number
+  width: number
+  height: number
   isTransparent?: boolean
   draggable?: boolean
   onDrag?: DragEventHandler<HTMLDivElement>
@@ -101,8 +103,10 @@ export function ResizableEventView(props: ResizableEventViewProps) {
       title={props.title}
       start={resizingEventDates ? resizingEventDates.start : props.start}
       end={resizingEventDates ? resizingEventDates.end : props.end}
-      column={resizingEventDates ? 1 : props.column}
-      columns={resizingEventDates ? 1 : props.columns}
+      top={props.top}
+      left={props.left}
+      width={props.width}
+      height={props.height}
       isTransparent={props.isTransparent}
       draggable={props.draggable}
       onDrag={props.onDrag}

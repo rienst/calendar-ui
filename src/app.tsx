@@ -1,4 +1,4 @@
-import { setHours, startOfDay } from 'date-fns'
+import { addDays, setHours, startOfDay } from 'date-fns'
 import { DayOrWeekView, DayOrWeekViewType, Event } from './day-or-week-view'
 import { nl } from 'date-fns/locale'
 import { useState } from 'react'
@@ -20,8 +20,14 @@ export function App() {
     },
     {
       id: '2',
-      start: setHours(startOfDay(now), 8),
-      end: setHours(startOfDay(now), 16),
+      start: setHours(startOfDay(now), 20),
+      end: setHours(startOfDay(addDays(now, 1)), 4),
+      title: 'Werken',
+    },
+    {
+      id: '3',
+      start: setHours(startOfDay(now), 5),
+      end: setHours(startOfDay(now), 7),
       title: 'Werken',
     },
   ])
