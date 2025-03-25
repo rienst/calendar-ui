@@ -1,9 +1,9 @@
 import { Locale } from 'date-fns'
 import { useInvisibleDragHandlers } from '../hooks/use-invisible-drag-handlers'
 import { DragEvent, useMemo, useState } from 'react'
-import { useEventTrack } from './event-track'
 import { ResizableEventView } from './resizable-event-view'
 import { EventView } from './event-view'
+import { useEventArea } from './event-area'
 
 export interface DraggableEventViewProps {
   id: string
@@ -17,36 +17,38 @@ export interface DraggableEventViewProps {
 }
 
 export function DraggableEventView(props: DraggableEventViewProps) {
-  const { getDatesForDraggingEvent } = useEventTrack()
+  const { getDatesForDraggingEvent } = useEventArea()
 
-  const [draggingOffsetToEventY, setDraggingOffsetToEventY] = useState<
+  const [draggingYOffsetToEvent, setDraggingYOffsetToEvent] = useState<
     number | null
   >(null)
-  const [draggingClientY, setDraggingClientY] = useState<number | null>(null)
+  const [draggingClientOffset, setDraggingClientOffset] = useState<{
+    x: number
+    y: number
+  } | null>(null)
 
   const draggingEventDates = useMemo(() => {
-    if (!draggingOffsetToEventY || !draggingClientY) {
+    if (!draggingYOffsetToEvent || !draggingClientOffset) {
       return null
     }
 
-    const eventWindowOffsetYPx = draggingClientY - draggingOffsetToEventY
-
     return getDatesForDraggingEvent({
-      eventWindowOffsetYPx,
+      mouseWindowOffsetXPx: draggingClientOffset.x,
+      eventWindowOffsetYPx: draggingClientOffset.y - draggingYOffsetToEvent,
       eventLengthMinutes: Math.round(
         (props.end.getTime() - props.start.getTime()) / 1000 / 60
       ),
     })
   }, [
-    draggingOffsetToEventY,
-    draggingClientY,
+    draggingYOffsetToEvent,
+    draggingClientOffset,
     props.end,
     props.start,
     getDatesForDraggingEvent,
   ])
 
   function handleDragStart(event: DragEvent) {
-    setDraggingOffsetToEventY(
+    setDraggingYOffsetToEvent(
       event.clientY - event.currentTarget.getBoundingClientRect().top
     )
   }
@@ -54,17 +56,20 @@ export function DraggableEventView(props: DraggableEventViewProps) {
   function handleDrag(event: DragEvent) {
     if (event.clientX === 0 && event.clientY === 0) {
       confirmDrag()
-      setDraggingOffsetToEventY(null)
-      setDraggingClientY(null)
+      setDraggingYOffsetToEvent(null)
+      setDraggingClientOffset(null)
       return
     }
 
-    setDraggingClientY(event.clientY)
+    setDraggingClientOffset({
+      x: event.clientX,
+      y: event.clientY,
+    })
   }
 
   function handleDragEnd() {
-    setDraggingOffsetToEventY(null)
-    setDraggingClientY(null)
+    setDraggingYOffsetToEvent(null)
+    setDraggingClientOffset(null)
   }
 
   const { onDragStart, onDragEnd } = useInvisibleDragHandlers({

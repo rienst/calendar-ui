@@ -13,7 +13,7 @@ import { DayMarkers } from './day-markers'
 import { Tabs } from './tabs'
 import { ArrowButtons } from './arrow-buttons'
 import { Button } from './button'
-import { EventTrack } from './event-track'
+import { EventArea } from './event-area'
 
 export type DayOrWeekViewType = 'week' | 'day'
 
@@ -120,15 +120,13 @@ export function DayOrWeekView(props: DayOrWeekViewProps) {
       <div className="flex items-end">
         <HourMarkers date={trackStartingDates[0]} locale={props.locale} />
 
-        {trackStartingDates.map(start => (
-          <EventTrack
-            start={start}
-            sizeInMinutes={24 * 60}
-            events={props.events}
-            locale={props.locale}
-            onEventsChange={props.onEventsChange}
-          />
-        ))}
+        <EventArea
+          start={trackStartingDates[0]}
+          days={view === 'week' ? 7 : 1}
+          events={props.events}
+          locale={props.locale}
+          onEventsChange={props.onEventsChange}
+        />
       </div>
     </div>
   )

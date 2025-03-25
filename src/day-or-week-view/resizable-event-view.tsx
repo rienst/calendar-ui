@@ -1,14 +1,8 @@
 import { Locale } from 'date-fns'
-import { useEventTrack } from './event-track'
-import {
-  DragEvent,
-  DragEventHandler,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import { DragEvent, DragEventHandler, useMemo, useState } from 'react'
 import { EventView } from './event-view'
 import { useInvisibleDragHandlers } from '../hooks/use-invisible-drag-handlers'
+import { useEventArea } from './event-area'
 
 export interface ResizableEventViewProps {
   title: string
@@ -26,27 +20,30 @@ export interface ResizableEventViewProps {
 }
 
 export function ResizableEventView(props: ResizableEventViewProps) {
-  const { getDatesForResizingEvent } = useEventTrack()
+  const { getDatesForResizingEvent } = useEventArea()
 
   const [resizingOffsetToEventEndY, setResizingOffsetToEventEndY] = useState<
     number | null
   >(null)
-  const [resizingClientY, setResizingClientY] = useState<number | null>(null)
+  const [resizingClientOffset, setResizingClientOffset] = useState<{
+    x: number
+    y: number
+  } | null>(null)
 
   const resizingEventDates = useMemo(() => {
-    if (!resizingOffsetToEventEndY || !resizingClientY) {
+    if (!resizingOffsetToEventEndY || !resizingClientOffset) {
       return null
     }
 
-    const eventEndWindowOffsetYPx = resizingClientY + resizingOffsetToEventEndY
-
     return getDatesForResizingEvent({
-      eventEndWindowOffsetYPx,
+      mouseWindowOffsetXPx: resizingClientOffset.x,
+      eventEndWindowOffsetYPx:
+        resizingClientOffset.y + resizingOffsetToEventEndY,
       eventStart: props.start,
     })
   }, [
     resizingOffsetToEventEndY,
-    resizingClientY,
+    resizingClientOffset,
     props.start,
     getDatesForResizingEvent,
   ])
@@ -68,18 +65,21 @@ export function ResizableEventView(props: ResizableEventViewProps) {
     ) {
       confirmResize()
       setResizingOffsetToEventEndY(null)
-      setResizingClientY(null)
+      setResizingClientOffset(null)
       return
     }
 
-    setResizingClientY(event.clientY)
+    setResizingClientOffset({
+      x: event.clientX,
+      y: event.clientY,
+    })
   }
 
   function handleResizeBarDragEnd(event: DragEvent) {
     event.stopPropagation()
 
     setResizingOffsetToEventEndY(null)
-    setResizingClientY(null)
+    setResizingClientOffset(null)
   }
 
   const { onDragStart: onResizeBarDragStart, onDragEnd: onResizeBarDragEnd } =
@@ -96,23 +96,13 @@ export function ResizableEventView(props: ResizableEventViewProps) {
     props.onResized(resizingEventDates.start, resizingEventDates.end)
   }
 
-  useEffect(
-    () =>
-      console.log({
-        resizingOffsetToEventEndY,
-        resizingClientY,
-        resizingEventDates,
-      }),
-    [resizingEventDates, resizingOffsetToEventEndY, resizingClientY]
-  )
-
   return (
     <EventView
       title={props.title}
       start={resizingEventDates ? resizingEventDates.start : props.start}
       end={resizingEventDates ? resizingEventDates.end : props.end}
-      column={props.column}
-      columns={props.columns}
+      column={resizingEventDates ? 1 : props.column}
+      columns={resizingEventDates ? 1 : props.columns}
       isTransparent={props.isTransparent}
       draggable={props.draggable}
       onDrag={props.onDrag}

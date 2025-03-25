@@ -14,7 +14,7 @@ export function App() {
   const [events, setEvents] = useState<Event[]>([
     {
       id: '1',
-      start: setHours(startOfDay(now), 16.5),
+      start: setHours(startOfDay(now), 15),
       end: setHours(startOfDay(now), 17),
       title: 'Spons halen',
     },
@@ -27,17 +27,15 @@ export function App() {
   ])
 
   return (
-    <div className="pb-80">
-      <DayOrWeekView
-        viewingDate={viewingDate}
-        onChangeViewingDate={setViewingDate}
-        weekStartsOn={1}
-        locale={nl}
-        view={view}
-        onChangeView={setView}
-        events={events}
-        onEventsChange={setEvents}
-      />
-    </div>
+    <DayOrWeekView
+      viewingDate={viewingDate}
+      onChangeViewingDate={setViewingDate}
+      weekStartsOn={1}
+      locale={nl}
+      view={view}
+      onChangeView={setView}
+      events={events}
+      onEventsChange={setEvents}
+    />
   )
 }
