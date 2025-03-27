@@ -1,11 +1,9 @@
-import { addDays, setHours, startOfDay } from 'date-fns'
+import { setHours, startOfToday, startOfTomorrow } from 'date-fns'
 import { DayOrWeekView, DayOrWeekViewType, Event } from './day-or-week-view'
 import { nl } from 'date-fns/locale'
 import { useState } from 'react'
 
 export function App() {
-  const now = new Date()
-
   const [viewingDate, setViewingDate] = useState(new Date())
   const [view, setView] = useState<DayOrWeekViewType>(
     window.innerWidth < 768 ? 'day' : 'week'
@@ -14,20 +12,26 @@ export function App() {
   const [events, setEvents] = useState<Event[]>([
     {
       id: '1',
-      start: setHours(startOfDay(now), 15),
-      end: setHours(startOfDay(now), 17),
+      start: setHours(startOfToday(), 15),
+      end: setHours(startOfToday(), 17),
       title: 'Spons halen',
     },
     {
       id: '2',
-      start: setHours(startOfDay(now), 20),
-      end: setHours(startOfDay(addDays(now, 1)), 4),
+      start: setHours(startOfToday(), 20),
+      end: setHours(startOfTomorrow(), 4),
       title: 'Werken',
     },
     {
       id: '3',
-      start: setHours(startOfDay(now), 5),
-      end: setHours(startOfDay(now), 7),
+      start: setHours(startOfToday(), 16),
+      end: setHours(startOfToday(), 22),
+      title: 'Werken',
+    },
+    {
+      id: '4',
+      start: setHours(startOfToday(), 5),
+      end: setHours(startOfToday(), 7),
       title: 'Werken',
     },
   ])

@@ -13,24 +13,26 @@ export interface ArrangeResult<TItem extends WithStartAndEnd>
   columns: number
 }
 
-export class Arranger {
-  static arrange<TItem extends WithStartAndEnd>(
+export interface IArranger {
+  arrange<TItem extends WithStartAndEnd>(items: TItem[]): ArrangeResult<TItem>[]
+}
+
+export class Arranger implements IArranger {
+  arrange<TItem extends WithStartAndEnd>(
     items: TItem[]
   ): ArrangeResult<TItem>[] {
-    const groups = Arranger.groupOverlapping(items)
+    const groups = this.groupOverlapping(items)
 
-    const arrangedGroups = groups.map(group =>
-      Arranger.arrangeIntoColumns(group)
-    )
+    const arrangedGroups = groups.map(group => this.arrangeIntoColumns(group))
 
     return arrangedGroups.flat()
   }
 
-  private static dateToNumber(date: Date | number): number {
+  private dateToNumber(date: Date | number): number {
     return typeof date === 'number' ? date : new Date(date).getTime()
   }
 
-  private static groupOverlapping<TItem extends WithStartAndEnd>(
+  private groupOverlapping<TItem extends WithStartAndEnd>(
     timespans: TItem[]
   ): TItem[][] {
     const sortedTimespans = [...timespans].sort(
@@ -53,7 +55,7 @@ export class Arranger {
     return groups
   }
 
-  private static arrangeIntoColumns<TItem extends WithStartAndEnd>(
+  private arrangeIntoColumns<TItem extends WithStartAndEnd>(
     timespans: TItem[]
   ): ArrangeResult<TItem>[] {
     if (timespans.length === 0) {
@@ -72,7 +74,7 @@ export class Arranger {
         activeTimespan => activeTimespan.end > this.dateToNumber(timespan.start)
       )
 
-      const firstFreeColumn = Arranger.firstUnused(
+      const firstFreeColumn = this.firstUnused(
         activeTimespans.map(activeTimespan => activeTimespan.column) || []
       )
 
@@ -95,7 +97,7 @@ export class Arranger {
     }))
   }
 
-  private static firstUnused(numbers: number[]): number {
+  private firstUnused(numbers: number[]): number {
     const sorted = numbers.sort()
 
     for (let i = 0; i < sorted.length; i++) {

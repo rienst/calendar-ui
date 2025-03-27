@@ -10,7 +10,7 @@ describe('Arranger', () => {
     it('arranges a single item correctly', () => {
       const timespan: WithStartAndEnd = { start: 0, end: 1 }
 
-      const result = Arranger.arrange([timespan])
+      const result = new Arranger().arrange([timespan])
 
       expect(result[0].column).toBe(1)
       expect(result[0].columns).toBe(1)
@@ -23,7 +23,7 @@ describe('Arranger', () => {
         { start: 0, end: 1 },
       ]
 
-      const result = Arranger.arrange(timespans)
+      const result = new Arranger().arrange(timespans)
 
       expect(result[0].column).toBe(1)
       expect(result[0].columns).toBe(2)
@@ -40,7 +40,7 @@ describe('Arranger', () => {
         { start: 0, end: 2 },
       ]
 
-      const result = Arranger.arrange(timespans)
+      const result = new Arranger().arrange(timespans)
 
       expect(result[0].column).toBe(1)
       expect(result[0].columns).toBe(2)
@@ -57,7 +57,7 @@ describe('Arranger', () => {
         { start: 1, end: 2 },
       ]
 
-      const result = Arranger.arrange(timespans)
+      const result = new Arranger().arrange(timespans)
 
       expect(result[0].column).toBe(1)
       expect(result[0].columns).toBe(2)
@@ -74,7 +74,7 @@ describe('Arranger', () => {
         { start: 1, end: 3 },
       ]
 
-      const result = Arranger.arrange(timespans)
+      const result = new Arranger().arrange(timespans)
 
       expect(result[0].column).toBe(1)
       expect(result[0].columns).toBe(2)
@@ -91,7 +91,7 @@ describe('Arranger', () => {
         { start: 0, end: 3 },
       ]
 
-      const result = Arranger.arrange(timespans)
+      const result = new Arranger().arrange(timespans)
 
       expect(result[0].column).toBe(1)
       expect(result[0].columns).toBe(2)
@@ -108,7 +108,7 @@ describe('Arranger', () => {
         { start: 2, end: 3 },
       ]
 
-      const result = Arranger.arrange(timespans)
+      const result = new Arranger().arrange(timespans)
 
       expect(result[0].column).toBe(1)
       expect(result[0].columns).toBe(1)
@@ -126,7 +126,7 @@ describe('Arranger', () => {
         { start: 2, end: 3 },
       ]
 
-      const result = Arranger.arrange(timespans)
+      const result = new Arranger().arrange(timespans)
 
       expect(result[0].column).toBe(1)
       expect(result[0].columns).toBe(2)
@@ -151,7 +151,7 @@ describe('Arranger', () => {
         { start: 7, end: 9 },
       ]
 
-      const result = Arranger.arrange(timespans)
+      const result = new Arranger().arrange(timespans)
 
       expect(result[0].column).toBe(1)
       expect(result[0].columns).toBe(2)
@@ -185,7 +185,7 @@ describe('Arranger', () => {
         { start: 3, end: 5 },
       ]
 
-      const result = Arranger.arrange(timespans)
+      const result = new Arranger().arrange(timespans)
 
       expect(result[0].column).toBe(1)
       expect(result[0].columns).toBe(3)
