@@ -114,6 +114,26 @@ export class EventArea<TEvent extends Event> {
         this.createEventBlockForEventArrangeResult(arrangeResult)
       )
       .filter(block => block !== null)
+      .map(block => ({
+        ...block,
+        event: this.applyInitialEventDate(block.event),
+      }))
+  }
+
+  private applyInitialEventDate(event: TEvent): TEvent {
+    const initialEvent = this.events.find(
+      initialEvent => initialEvent.id === event.id
+    )
+
+    if (!initialEvent) {
+      return event
+    }
+
+    return {
+      ...event,
+      start: initialEvent.start,
+      end: initialEvent.end,
+    }
   }
 
   private getDraggingEventBlocks(): EventBlock<TEvent>[] {
@@ -386,24 +406,16 @@ export class EventArea<TEvent extends Event> {
     return new Date(startOfDay.getTime() + this.dayMs)
   }
 
-  getDateForPosition(x: number, y: number): Date | null {
+  getDateForPosition(x: number, y: number): Date {
     const day = this.getDayForPosition(x)
     const topOffsetMs = this.pxToMs(y)
-
-    if (day === null || topOffsetMs === null) {
-      return null
-    }
 
     const precedingDaysOffsetMs = this.dayMs * (day - 1)
 
     return new Date(this.start.getTime() + precedingDaysOffsetMs + topOffsetMs)
   }
 
-  private getDayForPosition(x: number): number | null {
-    if (x < 0 || x > this.width) {
-      return null
-    }
-
+  private getDayForPosition(x: number): number {
     return Math.floor(x / this.dayWidth) + 1
   }
 
@@ -411,11 +423,7 @@ export class EventArea<TEvent extends Event> {
     return (ms / this.dayMs) * this.height
   }
 
-  private pxToMs(px: number): number | null {
-    if (px < 0 || px > this.height) {
-      return null
-    }
-
+  private pxToMs(px: number): number {
     return (px / this.height) * this.dayMs
   }
 }

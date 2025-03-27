@@ -677,8 +677,14 @@ describe('EventArea', () => {
       const blocks = area.getEventBlocks()
 
       expect(blocks).toHaveLength(2)
+
+      expect(blocks[0].event.start).toEqual(new Date('2021-01-01T12:00:00Z'))
+      expect(blocks[0].event.end).toEqual(new Date('2021-01-02T06:00:00Z'))
       expect(blocks[0].top).toBe(50)
       expect(blocks[0].height).toBe(50)
+
+      expect(blocks[0].event.start).toEqual(new Date('2021-01-01T12:00:00Z'))
+      expect(blocks[0].event.end).toEqual(new Date('2021-01-02T06:00:00Z'))
       expect(blocks[1].top).toBe(0)
       expect(blocks[1].height).toBe(25)
     })
@@ -889,7 +895,7 @@ describe('EventArea', () => {
       expect(date).toEqual(new Date('2021-01-02T12:00:00Z'))
     })
 
-    it('returns null for a block left the area', () => {
+    it('returns the correct date for a block left the area', () => {
       const area = new EventArea({
         start: new Date('2021-01-01T00:00:00Z'),
         days: 2,
@@ -899,10 +905,10 @@ describe('EventArea', () => {
 
       const date = area.getDateForPosition(-50, 50)
 
-      expect(date).toBeNull()
+      expect(date).toEqual(new Date('2020-12-31T12:00:00Z'))
     })
 
-    it('returns null for a block right of the area', () => {
+    it('returns the correct date for a block right of the area', () => {
       const area = new EventArea({
         start: new Date('2021-01-01T00:00:00Z'),
         days: 2,
@@ -912,10 +918,10 @@ describe('EventArea', () => {
 
       const date = area.getDateForPosition(150, 50)
 
-      expect(date).toBeNull()
+      expect(date).toEqual(new Date('2021-01-04T12:00:00Z'))
     })
 
-    it('returns null for a block above the area', () => {
+    it('returns the correct date for a block above the area', () => {
       const area = new EventArea({
         start: new Date('2021-01-01T00:00:00Z'),
         days: 2,
@@ -925,10 +931,10 @@ describe('EventArea', () => {
 
       const date = area.getDateForPosition(50, -50)
 
-      expect(date).toBeNull()
+      expect(date).toEqual(new Date('2021-01-01T12:00:00Z'))
     })
 
-    it('returns null for a block below the area', () => {
+    it('returns the correct date for a block below the area', () => {
       const area = new EventArea({
         start: new Date('2021-01-01T00:00:00Z'),
         days: 2,
@@ -938,7 +944,7 @@ describe('EventArea', () => {
 
       const date = area.getDateForPosition(50, 150)
 
-      expect(date).toBeNull()
+      expect(date).toEqual(new Date('2021-01-03T12:00:00Z'))
     })
   })
 })

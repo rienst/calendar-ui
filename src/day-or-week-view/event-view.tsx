@@ -25,9 +25,9 @@ export function EventView(props: EventViewProps) {
   return (
     <div
       draggable={props.isDraggable}
-      onDrag={props.onDrag}
       onDragStart={props.onDragStart}
-      onDragEnd={props.onDrag}
+      onDrag={props.onDrag}
+      onDragEnd={props.onDragEnd}
       className={classNames(
         'flex absolute select-none text-sm bg-blue-500 overflow-hidden text-white pl-1.5 py-0.5 rounded-md h-full',
         props.height >= 36 ? 'flex-col' : 'gap-2',
