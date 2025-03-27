@@ -18,8 +18,8 @@ export interface EventAreaViewProps {
   events?: Event[]
   dayPaddingRight?: number
   blockPadding?: number
-  eventSnapMinutes?: number
   dragIntervalMs?: number
+  minEventSizeMs?: number
   locale?: Locale
   onEventsChange?: (events: Event[]) => void
 }
@@ -31,6 +31,7 @@ export function EventAreaView({
   dayPaddingRight,
   blockPadding,
   dragIntervalMs,
+  minEventSizeMs,
   locale,
   onEventsChange,
 }: EventAreaViewProps) {
@@ -52,6 +53,8 @@ export function EventAreaView({
         days,
         width: wrapperResizeObserverEntry.contentRect.width,
         height: wrapperResizeObserverEntry.contentRect.height,
+        top: wrapperResizeObserverEntry.target.getBoundingClientRect().top,
+        left: wrapperResizeObserverEntry.target.getBoundingClientRect().left,
         blockPadding,
         dayPaddingRight,
         events,
@@ -67,7 +70,7 @@ export function EventAreaView({
       eventArea.update = new DraggingEventUpdate(
         draggingEventState,
         draggingCanvas,
-        dragIntervalMs
+        { dragIntervalMs, minEventSizeMs }
       )
     }
 
@@ -96,20 +99,22 @@ export function EventAreaView({
           height={block.height}
           width={block.width}
           locale={locale}
-          isFloating={block.isFloating}
-          isTransparent={block.isTransparent}
-          isDraggable={!block.isFloating}
+          isFloating={block.isUpdate}
+          isTransparent={block.isBeingUpdated}
+          isMovable={!block.isUpdate}
+          isResizable
           onDragStateChange={dragState =>
             setDraggingEventState(
               dragState && {
+                behavior: dragState.behavior,
                 eventId: block.event.id,
-                eventStart: block.event.start,
+                eventEnd: block.event.end,
                 eventDurationMs:
                   block.event.end.getTime() - block.event.start.getTime(),
                 initialEventLeft: dragState.initialEventLeft,
-                initialEventTop: dragState.initialEventTop,
+                initialEventBottom: dragState.initialEventTop,
                 eventLeft: dragState.eventLeft,
-                eventTop: dragState.eventTop,
+                eventBottom: dragState.eventTop,
               }
             )
           }
@@ -129,7 +134,7 @@ export function EventAreaView({
             const draggingEvent = new DraggingEventUpdate(
               draggingEventState,
               draggingCanvas,
-              dragIntervalMs
+              { dragIntervalMs, minEventSizeMs }
             )
 
             const updatedEvents = (events || []).map(event => {

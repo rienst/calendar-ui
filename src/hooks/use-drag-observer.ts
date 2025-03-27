@@ -5,7 +5,9 @@ export interface InitialDragState {
   initialEventLeft: number
 }
 
-export interface DragState extends InitialDragState {
+export interface DragState {
+  initialEventTop: number
+  initialEventLeft: number
   eventTop: number
   eventLeft: number
 }
@@ -28,16 +30,17 @@ export function useDragObserver({
   const [initialDragState, setInitialDragState] = useState<InitialDragState>()
 
   const onDragStart = useCallback<DragEventHandler<Element>>(event => {
+    event.stopPropagation()
     setInitialDragState({
-      initialEventTop:
-        event.clientY - event.currentTarget.getBoundingClientRect().top,
-      initialEventLeft:
-        event.clientX - event.currentTarget.getBoundingClientRect().left,
+      initialEventTop: event.clientY,
+      initialEventLeft: event.clientX,
     })
   }, [])
 
   const onDrag = useCallback<DragEventHandler<Element>>(
     event => {
+      event.stopPropagation()
+
       if (!initialDragState) {
         return
       }
@@ -50,10 +53,8 @@ export function useDragObserver({
 
       const state: DragState = {
         ...initialDragState,
-        eventTop:
-          event.clientY - event.currentTarget.getBoundingClientRect().top,
-        eventLeft:
-          event.clientX - event.currentTarget.getBoundingClientRect().left,
+        eventTop: event.clientY,
+        eventLeft: event.clientX,
       }
 
       onStateChange?.(state)
@@ -61,10 +62,14 @@ export function useDragObserver({
     [initialDragState, onStateChange, onConfirm]
   )
 
-  const onDragEnd = useCallback<DragEventHandler<Element>>(() => {
-    setInitialDragState(undefined)
-    onStateChange?.(undefined)
-  }, [onStateChange])
+  const onDragEnd = useCallback<DragEventHandler<Element>>(
+    event => {
+      event.stopPropagation()
+      setInitialDragState(undefined)
+      onStateChange?.(undefined)
+    },
+    [onStateChange]
+  )
 
   return { onDragStart, onDrag, onDragEnd }
 }

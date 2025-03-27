@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { DraggingEventUpdate } from './dragging-event-update'
 
 describe('DraggingEventUpdate', () => {
@@ -10,12 +10,13 @@ describe('DraggingEventUpdate', () => {
     it('is set to the eventId from the init object', () => {
       const update = new DraggingEventUpdate(
         {
+          behavior: 'move',
           eventId: 'event-1',
-          eventStart: new Date(),
+          eventEnd: new Date(),
           eventDurationMs: 0,
-          initialEventTop: 0,
+          initialEventBottom: 0,
           initialEventLeft: 0,
-          eventTop: 0,
+          eventBottom: 0,
           eventLeft: 0,
         },
         {
@@ -27,38 +28,176 @@ describe('DraggingEventUpdate', () => {
     })
   })
 
-  describe('type', () => {
-    it('is set to "drag"', () => {
+  describe('end', () => {
+    it('calculates the time between the initial event position and the current event position and returns the event end date plus that time', () => {
       const update = new DraggingEventUpdate(
         {
+          behavior: 'move',
           eventId: 'event-1',
-          eventStart: new Date(),
-          eventDurationMs: 0,
-          initialEventTop: 0,
+          eventEnd: new Date('2021-01-01T06:00:00Z'),
+          eventDurationMs: 60 * 60 * 1000,
           initialEventLeft: 0,
-          eventTop: 0,
+          initialEventBottom: 25,
           eventLeft: 0,
+          eventBottom: 50,
         },
         {
-          getDateForPosition: () => new Date(),
+          getDateForPosition: (x: number, y: number) => {
+            const msInDay = 86400000
+            const areaHeight = 100
+            const msPerPx = msInDay / areaHeight
+
+            return new Date(
+              new Date('2021-01-01T00:00:00Z').getTime() + y * msPerPx
+            )
+          },
         }
       )
 
-      expect(update.type).toBe('drag')
+      expect(update.end).toEqual(new Date('2021-01-01T12:00:00Z'))
+    })
+
+    it('calculates the correct time for a multi-day canvas', () => {
+      const update = new DraggingEventUpdate(
+        {
+          behavior: 'move',
+          eventId: 'event-1',
+          eventEnd: new Date('2021-01-05T06:00:00Z'),
+          eventDurationMs: 60 * 60 * 1000,
+          initialEventLeft: 40,
+          initialEventBottom: 25,
+          eventLeft: 60,
+          eventBottom: 50,
+        },
+        {
+          getDateForPosition: (x: number, y: number) => {
+            const areaDays = 10
+            const areaWidth = 100
+            const areaHeight = 100
+
+            const day = Math.floor(x / (areaWidth / areaDays))
+
+            const msInDay = 86400000
+            const msPerPx = msInDay / areaHeight
+
+            return new Date(
+              new Date('2021-01-01T00:00:00Z').getTime() +
+                y * msPerPx +
+                day * msInDay
+            )
+          },
+        }
+      )
+
+      expect(update.end).toEqual(new Date('2021-01-07T12:00:00Z'))
+    })
+
+    it('rounds the time up to the nearest drag interval', () => {
+      const update = new DraggingEventUpdate(
+        {
+          behavior: 'move',
+          eventId: 'event-1',
+          eventEnd: new Date('2021-01-01T00:00:00Z'),
+          eventDurationMs: 60 * 60 * 1000,
+          initialEventLeft: 0,
+          initialEventBottom: 0,
+          eventLeft: 0,
+          eventBottom: 51,
+        },
+        {
+          getDateForPosition: (x: number, y: number) => {
+            const msInDay = 86400000
+            const areaHeight = 100
+            const msPerPx = msInDay / areaHeight
+
+            return new Date(
+              new Date('2021-01-01T00:00:00Z').getTime() + y * msPerPx
+            )
+          },
+        },
+        {
+          dragIntervalMs: 15 * 60 * 1000,
+        }
+      )
+
+      expect(update.end).toEqual(new Date('2021-01-01T12:15:00Z'))
+    })
+
+    it('rounds the time down to the nearest drag interval', () => {
+      const update = new DraggingEventUpdate(
+        {
+          behavior: 'move',
+          eventId: 'event-1',
+          eventEnd: new Date('2021-01-01T00:00:00Z'),
+          eventDurationMs: 60 * 60 * 1000,
+          initialEventLeft: 0,
+          initialEventBottom: 0,
+          eventLeft: 0,
+          eventBottom: 49,
+        },
+        {
+          getDateForPosition: (x: number, y: number) => {
+            const msInDay = 86400000
+            const areaHeight = 100
+            const msPerPx = msInDay / areaHeight
+
+            return new Date(
+              new Date('2021-01-01T00:00:00Z').getTime() + y * msPerPx
+            )
+          },
+        },
+        {
+          dragIntervalMs: 15 * 60 * 1000,
+        }
+      )
+
+      expect(update.end).toEqual(new Date('2021-01-01T11:45:00Z'))
+    })
+
+    it('does not return an end date which does not satisfy the minimal event size ms', () => {
+      const update = new DraggingEventUpdate(
+        {
+          behavior: 'resize',
+          eventId: 'event-1',
+          eventEnd: new Date('2021-01-01T01:00:00Z'),
+          eventDurationMs: 60 * 60 * 1000,
+          initialEventLeft: 0,
+          initialEventBottom: 50,
+          eventLeft: 0,
+          eventBottom: 0,
+        },
+        {
+          getDateForPosition: (x: number, y: number) => {
+            const msInDay = 86400000
+            const areaHeight = 100
+            const msPerPx = msInDay / areaHeight
+
+            return new Date(
+              new Date('2021-01-01T00:00:00Z').getTime() + y * msPerPx
+            )
+          },
+        },
+        {
+          minEventSizeMs: 30 * 60 * 1000,
+        }
+      )
+
+      expect(update.end).toEqual(new Date('2021-01-01T00:30:00Z'))
     })
   })
 
   describe('start', () => {
-    it('calculates the time between the initial event position and the current event position and returns the event start date plus that time', () => {
+    it("when behavior is 'move', is set to the computed end date minus the event duration", () => {
       const update = new DraggingEventUpdate(
         {
+          behavior: 'move',
           eventId: 'event-1',
-          eventStart: new Date('2021-01-01T00:00:00Z'),
-          eventDurationMs: 0,
+          eventEnd: new Date('2021-01-01T01:00:00Z'),
+          eventDurationMs: 60 * 60 * 1000,
           initialEventLeft: 0,
-          initialEventTop: 0,
+          initialEventBottom: 0,
           eventLeft: 0,
-          eventTop: 50,
+          eventBottom: 50,
         },
         {
           getDateForPosition: (x: number, y: number) => {
@@ -76,74 +215,17 @@ describe('DraggingEventUpdate', () => {
       expect(update.start).toEqual(new Date('2021-01-01T12:00:00Z'))
     })
 
-    it('rounds the time up to the nearest drag interval', () => {
+    it("when behavior is 'resize', is set to the initial end date minus the event duration", () => {
       const update = new DraggingEventUpdate(
         {
+          behavior: 'resize',
           eventId: 'event-1',
-          eventStart: new Date('2021-01-01T00:00:00Z'),
-          eventDurationMs: 0,
-          initialEventLeft: 0,
-          initialEventTop: 0,
-          eventLeft: 0,
-          eventTop: 51,
-        },
-        {
-          getDateForPosition: (x: number, y: number) => {
-            const msInDay = 86400000
-            const areaHeight = 100
-            const msPerPx = msInDay / areaHeight
-
-            return new Date(
-              new Date('2021-01-01T00:00:00Z').getTime() + y * msPerPx
-            )
-          },
-        },
-        15 * 60 * 1000
-      )
-
-      expect(update.start).toEqual(new Date('2021-01-01T12:15:00Z'))
-    })
-
-    it('rounds the time down to the nearest drag interval', () => {
-      const update = new DraggingEventUpdate(
-        {
-          eventId: 'event-1',
-          eventStart: new Date('2021-01-01T00:00:00Z'),
-          eventDurationMs: 0,
-          initialEventLeft: 0,
-          initialEventTop: 0,
-          eventLeft: 0,
-          eventTop: 49,
-        },
-        {
-          getDateForPosition: (x: number, y: number) => {
-            const msInDay = 86400000
-            const areaHeight = 100
-            const msPerPx = msInDay / areaHeight
-
-            return new Date(
-              new Date('2021-01-01T00:00:00Z').getTime() + y * msPerPx
-            )
-          },
-        },
-        15 * 60 * 1000
-      )
-
-      expect(update.start).toEqual(new Date('2021-01-01T11:45:00Z'))
-    })
-  })
-
-  describe('end', () => {
-    it('is set to the computed start date plus the event duration', () => {
-      const update = new DraggingEventUpdate(
-        {
-          eventId: 'event-1',
-          eventStart: new Date('2021-01-01T00:00:00Z'),
+          eventEnd: new Date('2021-01-01T01:00:00Z'),
           eventDurationMs: 60 * 60 * 1000,
           initialEventLeft: 0,
-          initialEventTop: 0,
+          initialEventBottom: 0,
           eventLeft: 0,
-          eventTop: 50,
+          eventBottom: 50,
         },
         {
           getDateForPosition: (x: number, y: number) => {
@@ -158,7 +240,7 @@ describe('DraggingEventUpdate', () => {
         }
       )
 
-      expect(update.end).toEqual(new Date('2021-01-01T13:00:00Z'))
+      expect(update.start).toEqual(new Date('2021-01-01T00:00:00Z'))
     })
   })
 })

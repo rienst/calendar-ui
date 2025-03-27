@@ -17,24 +17,23 @@ interface Position {
 export interface EventBlock<TEvent> extends Position {
   event: TEvent
   key: string
-  isFloating: boolean
-  isTransparent: boolean
+  isUpdate: boolean
+  isBeingUpdated: boolean
 }
 
 export interface EventUpdate {
   eventId: string
   start: Date
   end: Date
-  type: EventUpdateType
 }
-
-export type EventUpdateType = 'drag'
 
 export interface EventAreaInit<TEvent> {
   start: Date
   days: number
   height: number
   width: number
+  top?: number
+  left?: number
   dayPaddingRight?: number
   blockPadding?: number
   events?: TEvent[]
@@ -46,6 +45,8 @@ export class EventArea<TEvent extends Event> {
   days
   height
   width
+  top
+  left
   dayPaddingRight
   eventBlockPadding
   events
@@ -65,8 +66,8 @@ export class EventArea<TEvent extends Event> {
     return this.dayWidth - this.dayPaddingRight
   }
 
-  private get draggingEvent(): TEvent | null {
-    if (this.update?.type !== 'drag') {
+  private get updatingEvent(): TEvent | null {
+    if (!this.update) {
       return null
     }
 
@@ -93,6 +94,8 @@ export class EventArea<TEvent extends Event> {
     this.days = init.days
     this.height = init.height
     this.width = init.width
+    this.top = init.top || 0
+    this.left = init.left || 0
     this.dayPaddingRight = init.dayPaddingRight || 0
     this.eventBlockPadding = init.blockPadding || 0
     this.events = init.events || []
@@ -137,11 +140,13 @@ export class EventArea<TEvent extends Event> {
   }
 
   private getDraggingEventBlocks(): EventBlock<TEvent>[] {
-    if (!this.draggingEvent) {
+    const updatingEvent = this.updatingEvent
+
+    if (!updatingEvent) {
       return []
     }
 
-    const eventsByStartDay = this.getEventsByStartDay([this.draggingEvent])
+    const eventsByStartDay = this.getEventsByStartDay([updatingEvent])
 
     return Object.values(eventsByStartDay)
       .flat()
@@ -159,6 +164,10 @@ export class EventArea<TEvent extends Event> {
         return this.constructDraggingEventBlock(event, index, position)
       })
       .filter(block => block !== null)
+      .map(block => ({
+        ...block,
+        event: updatingEvent,
+      }))
   }
 
   private arrangEvents(events: TEvent[]): ArrangeResult<TEvent>[] {
@@ -239,8 +248,8 @@ export class EventArea<TEvent extends Event> {
     return {
       key: this.getEventBlockKey(event.id, event.start),
       event,
-      isFloating: false,
-      isTransparent: this.isItemTransparent(event.id),
+      isUpdate: false,
+      isBeingUpdated: this.isItemTransparent(event.id),
       ...position,
     }
   }
@@ -253,8 +262,8 @@ export class EventArea<TEvent extends Event> {
     return {
       key: `${event.id}_${index}_drag`,
       event,
-      isFloating: true,
-      isTransparent: false,
+      isUpdate: true,
+      isBeingUpdated: false,
       ...position,
     }
   }
@@ -270,7 +279,11 @@ export class EventArea<TEvent extends Event> {
   }
 
   private isItemTransparent(itemId: string): boolean {
-    return this.update?.type === 'drag' && this.update.eventId === itemId
+    if (!this.update) {
+      return false
+    }
+
+    return this.update.eventId === itemId
   }
 
   private getPositionForEventBlockArrangeResult(
@@ -407,8 +420,11 @@ export class EventArea<TEvent extends Event> {
   }
 
   getDateForPosition(x: number, y: number): Date {
-    const day = this.getDayForPosition(x)
-    const topOffsetMs = this.pxToMs(y)
+    const areaOffsetX = x - this.left
+    const areaOffsetY = y - this.top
+
+    const day = this.getDayForPosition(areaOffsetX)
+    const topOffsetMs = this.pxToMs(areaOffsetY)
 
     const precedingDaysOffsetMs = this.dayMs * (day - 1)
 

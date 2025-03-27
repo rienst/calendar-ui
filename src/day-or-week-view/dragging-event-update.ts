@@ -1,12 +1,15 @@
 import { EventUpdate } from './event-area'
 
+export type DraggingBehavior = 'move' | 'resize'
+
 export interface DraggingEventState {
+  behavior: DraggingBehavior
   eventId: string
-  eventStart: Date
+  eventEnd: Date
   eventDurationMs: number
-  initialEventTop: number
+  initialEventBottom: number
   initialEventLeft: number
-  eventTop: number
+  eventBottom: number
   eventLeft: number
 }
 
@@ -14,13 +17,16 @@ export interface DraggingCanvas {
   getDateForPosition: (x: number, y: number) => Date
 }
 
-export class DraggingEventUpdate implements EventUpdate {
-  readonly type = 'drag'
+export interface EventDraggingOptions {
+  dragIntervalMs?: number
+  minEventSizeMs?: number
+}
 
+export class DraggingEventUpdate implements EventUpdate {
   constructor(
     private state: DraggingEventState,
     private canvas: DraggingCanvas,
-    private dragIntervalMs = 0
+    private options: EventDraggingOptions = {}
   ) {}
 
   get eventId() {
@@ -28,33 +34,53 @@ export class DraggingEventUpdate implements EventUpdate {
   }
 
   get start() {
-    const timeForInitialPosition = this.canvas.getDateForPosition(
-      this.state.initialEventLeft,
-      this.state.initialEventTop
-    )
+    if (this.state.behavior === 'resize') {
+      return new Date(
+        this.state.eventEnd.getTime() - this.state.eventDurationMs
+      )
+    }
 
-    const msBetweenInitialPositionAndEventStart =
-      this.state.eventStart.getTime() - timeForInitialPosition.getTime()
-
-    const timeForCurrentPosition = this.canvas.getDateForPosition(
-      this.state.eventLeft,
-      this.state.eventTop
-    )
-
-    const eventStartForCurrentPosition = new Date(
-      timeForCurrentPosition.getTime() + msBetweenInitialPositionAndEventStart
-    )
-
-    return this.dragIntervalMs > 0
-      ? new Date(
-          Math.round(
-            eventStartForCurrentPosition.getTime() / this.dragIntervalMs
-          ) * this.dragIntervalMs
-        )
-      : eventStartForCurrentPosition
+    return new Date(this.end.getTime() - this.state.eventDurationMs)
   }
 
   get end() {
-    return new Date(this.start.getTime() + this.state.eventDurationMs)
+    const timeForInitialPosition = this.canvas.getDateForPosition(
+      this.state.initialEventLeft,
+      this.state.initialEventBottom
+    )
+
+    const msBetweenInitialPositionAndEventEnd =
+      this.state.eventEnd.getTime() - timeForInitialPosition.getTime()
+
+    const timeForCurrentPosition = this.canvas.getDateForPosition(
+      this.state.eventLeft,
+      this.state.eventBottom
+    )
+
+    const eventEndForCurrentPosition = new Date(
+      timeForCurrentPosition.getTime() + msBetweenInitialPositionAndEventEnd
+    )
+
+    const minEventEnd =
+      this.state.behavior === 'resize'
+        ? new Date(
+            this.state.eventEnd.getTime() -
+              this.state.eventDurationMs +
+              (this.options.minEventSizeMs || 0)
+          )
+        : undefined
+
+    const eventEnd = minEventEnd
+      ? new Date(
+          Math.max(eventEndForCurrentPosition.getTime(), minEventEnd.getTime())
+        )
+      : eventEndForCurrentPosition
+
+    return this.options.dragIntervalMs
+      ? new Date(
+          Math.round(eventEnd.getTime() / this.options.dragIntervalMs) *
+            this.options.dragIntervalMs
+        )
+      : eventEnd
   }
 }

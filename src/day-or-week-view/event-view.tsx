@@ -13,18 +13,21 @@ export interface EventViewProps {
   minHeight?: number
   isFloating?: boolean
   isTransparent?: boolean
-  isResizable?: boolean
   locale?: Locale
-  isDraggable?: boolean
+  isMovable?: boolean
+  isResizable?: boolean
   onDrag?: DragEventHandler<HTMLDivElement>
   onDragStart?: DragEventHandler<HTMLDivElement>
   onDragEnd?: DragEventHandler<HTMLDivElement>
+  onResizeBarDrag?: DragEventHandler<HTMLDivElement>
+  onResizeBarDragStart?: DragEventHandler<HTMLDivElement>
+  onResizeBarDragEnd?: DragEventHandler<HTMLDivElement>
 }
 
 export function EventView(props: EventViewProps) {
   return (
     <div
-      draggable={props.isDraggable}
+      draggable={props.isMovable}
       onDragStart={props.onDragStart}
       onDrag={props.onDrag}
       onDragEnd={props.onDragEnd}
@@ -57,6 +60,9 @@ export function EventView(props: EventViewProps) {
         <div
           draggable
           className="absolute left-0 w-full bottom-0 h-2 cursor-ns-resize"
+          onDragStart={props.onResizeBarDragStart}
+          onDrag={props.onResizeBarDrag}
+          onDragEnd={props.onResizeBarDragEnd}
         />
       )}
     </div>
