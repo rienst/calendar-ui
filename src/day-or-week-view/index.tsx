@@ -125,7 +125,8 @@ export function DayOrWeekView(props: DayOrWeekViewProps) {
           days={view === 'week' ? 7 : 1}
           events={props.events}
           dayPaddingRight={12}
-          eventBlockPadding={2}
+          blockPadding={2}
+          dragIntervalMs={15 * 60 * 1000}
           onEventsChange={props.onEventsChange}
           locale={props.locale}
         />

@@ -43,8 +43,8 @@ export function App() {
       weekStartsOn={1}
       locale={nl}
       view={view}
-      onChangeView={setView}
       events={events}
+      onChangeView={setView}
       onEventsChange={setEvents}
     />
   )

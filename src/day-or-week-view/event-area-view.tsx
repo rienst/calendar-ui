@@ -14,9 +14,9 @@ export interface EventAreaViewProps {
   days: number
   events?: Event[]
   dayPaddingRight?: number
-  eventBlockPadding?: number
+  blockPadding?: number
   eventSnapMinutes?: number
-  minDragResizeMinutes?: number
+  dragIntervalMs?: number
   locale?: Locale
   onEventsChange?: (events: Event[]) => void
 }
@@ -26,8 +26,10 @@ export function EventAreaView({
   days,
   events,
   dayPaddingRight,
-  eventBlockPadding,
+  blockPadding,
+  dragIntervalMs,
   locale,
+  onEventsChange,
 }: EventAreaViewProps) {
   const [eventUpdate, setEventUpdate] = useState<EventUpdate>()
   const [wrapperElement, setWrapperElement] = useState<HTMLDivElement | null>(
@@ -46,9 +48,9 @@ export function EventAreaView({
         days,
         width: wrapperResizeObserverEntry.contentRect.width,
         height: wrapperResizeObserverEntry.contentRect.height,
-        blockPadding: eventBlockPadding,
+        blockPadding,
         dayPaddingRight,
-        events: events,
+        events,
         update: eventUpdate,
       },
       new Arranger()
@@ -59,16 +61,35 @@ export function EventAreaView({
     days,
     events,
     dayPaddingRight,
-    eventBlockPadding,
+    blockPadding,
     eventUpdate,
   ])
 
   const eventDragObserver = useEventDragObserver({
+    dragIntervalMs,
     wrapperTop:
       wrapperResizeObserverEntry?.target.getBoundingClientRect().top || 0,
     wrapperLeft:
       wrapperResizeObserverEntry?.target.getBoundingClientRect().left || 0,
     positionToDateConverter: eventArea,
+    onDragConfirm: state => {
+      const newEvents = events?.map(event => {
+        if (event.id === state.eventId) {
+          const eventDurationMs = event.end.getTime() - event.start.getTime()
+          const end = new Date(state.start.getTime() + eventDurationMs)
+
+          return {
+            ...event,
+            start: state.start,
+            end,
+          }
+        }
+
+        return event
+      })
+
+      onEventsChange?.(newEvents || [])
+    },
     onStateChange: state => {
       if (!state) {
         setEventUpdate(undefined)
@@ -94,6 +115,7 @@ export function EventAreaView({
   })
 
   const invisibleDragHandlers = useInvisibleDragHandlers({
+    onDragStart: eventDragObserver.onDragStart,
     onDragEnd: eventDragObserver.onDragEnd,
   })
 
@@ -102,7 +124,7 @@ export function EventAreaView({
       {eventArea?.getEventBlocks().map(block => (
         <EventView
           key={block.key}
-          title={block.key}
+          title={block.event.title}
           start={block.event.start}
           end={block.event.end}
           top={block.top}
@@ -120,10 +142,6 @@ export function EventAreaView({
           onDragEnd={invisibleDragHandlers.onDragEnd}
         />
       ))}
-
-      <pre className="absolute top-0 left-0 bg-white text-sm">
-        {JSON.stringify(eventUpdate || null, null, 2)}
-      </pre>
 
       <EventAreaGrid days={days} hours={24} />
     </div>
