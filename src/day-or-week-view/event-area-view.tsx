@@ -149,6 +149,7 @@ export function EventAreaView({
             left={block.left}
             height={block.height}
             width={block.width}
+            isFloating
             locale={locale}
           />
         ) : (
