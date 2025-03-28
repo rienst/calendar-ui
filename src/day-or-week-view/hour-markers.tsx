@@ -21,10 +21,10 @@ export function HourMarkers(props: HourMarkersProps) {
     <div>
       {hours.slice(1).map(hour => (
         <div
-          className="relative text-sm tabular-nums text-neutral-500 h-12 w-16 text-right dark:text-neutral-400"
+          className="relative text-xs tabular-nums text-neutral-600 h-12 w-20 text-right dark:text-neutral-300"
           key={hour.toISOString()}
         >
-          <div className="absolute -top-2.5 right-0 px-2">
+          <div className="absolute -top-2 right-0 px-2">
             {format(hour, 'p', { locale: props.locale })}
           </div>
         </div>

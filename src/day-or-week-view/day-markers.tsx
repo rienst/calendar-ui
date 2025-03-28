@@ -10,7 +10,7 @@ export interface DayMarkersProps {
 
 export function DayMarkers(props: DayMarkersProps) {
   return (
-    <div className="flex pl-16">
+    <div className="flex pl-20">
       {props.days.map(date => (
         <div
           key={date.toISOString()}

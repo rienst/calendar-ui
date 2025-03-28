@@ -1,6 +1,5 @@
 import { setHours, startOfToday, startOfTomorrow } from 'date-fns'
 import { DayOrWeekView, DayOrWeekViewType, Event } from './day-or-week-view'
-import { nl } from 'date-fns/locale'
 import { useState } from 'react'
 
 export function App() {
@@ -41,7 +40,6 @@ export function App() {
       viewingDate={viewingDate}
       onChangeViewingDate={setViewingDate}
       weekStartsOn={1}
-      locale={nl}
       view={view}
       events={events}
       onChangeView={setView}
