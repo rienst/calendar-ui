@@ -63,10 +63,11 @@ export function useDragObserver({
   const onDragEnd = useCallback<DragEventHandler<Element>>(
     event => {
       event.stopPropagation()
+      onConfirm?.()
       setInitialDragState(undefined)
       onStateChange?.(undefined)
     },
-    [onStateChange]
+    [onConfirm, onStateChange]
   )
 
   return { onDragStart, onDrag, onDragEnd }
