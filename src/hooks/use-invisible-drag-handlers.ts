@@ -14,7 +14,10 @@ export function useInvisibleDragHandlers({
   const onDragStart = useCallback<DragEventHandler<HTMLElement>>(
     event => {
       const blankCanas = document.createElement('canvas')
-      blankCanas.style = 'position: fixed; top: -99px; width: 1px; height: 1px;'
+      blankCanas.style.position = 'fixed'
+      blankCanas.style.top = '-99px'
+      blankCanas.style.width = '1px'
+      blankCanas.style.height = '1px'
       event.dataTransfer.setDragImage(blankCanas, 0, 0)
       document.body?.appendChild(blankCanas)
       blankCanvasRef.current = blankCanas

@@ -718,7 +718,6 @@ describe('EventArea', () => {
         eventId: '1',
         start: new Date('2021-01-01T12:00:00Z'),
         end: new Date('2021-01-02T00:00:00Z'),
-        type: 'drag',
       }
 
       const event: Event = {
@@ -762,7 +761,6 @@ describe('EventArea', () => {
         eventId: '1',
         start: new Date('2021-01-01T12:00:00Z'),
         end: new Date('2021-01-02T12:00:00Z'),
-        type: 'drag',
       }
 
       const event: Event = {
