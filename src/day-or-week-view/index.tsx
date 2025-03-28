@@ -24,6 +24,8 @@ export interface DayOrWeekViewProps {
   locale?: Locale
   events?: Event[]
   view?: DayOrWeekViewType
+  selectedEventId?: string
+  onEventSelected?: (id?: string) => void
   onChangeViewingDate?: (date: Date) => void
   onChangeView?: (view: DayOrWeekViewType) => void
   onEventsChange?: (events: Event[]) => void
@@ -130,7 +132,9 @@ export function DayOrWeekView(props: DayOrWeekViewProps) {
           blockPadding={2}
           dragIntervalMs={15 * 60 * 1000}
           minEventSizeMs={30 * 60 * 1000}
+          selectedEventId={props.selectedEventId}
           locale={props.locale}
+          onEventSelected={props.onEventSelected}
           onEventsChange={props.onEventsChange}
           onEventSketched={props.onEventSketched}
         />

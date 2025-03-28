@@ -15,6 +15,7 @@ import { DragState, useDragObserver } from '../hooks/use-drag-observer'
 import { useInvisibleDragHandlers } from '../hooks/use-invisible-drag-handlers'
 import { DraggingEventSketch } from './dragging-event-sketch'
 import { EventView } from './event-view'
+import { EventInfoModal } from './event-info-modal'
 
 export interface EventAreaViewProps {
   start: Date
@@ -22,9 +23,11 @@ export interface EventAreaViewProps {
   events?: Event[]
   dayPaddingRight?: number
   blockPadding?: number
+  selectedEventId?: string
   dragIntervalMs?: number
   minEventSizeMs?: number
   locale?: Locale
+  onEventSelected?: (id?: string) => void
   onEventsChange?: (events: Event[]) => void
   onEventSketched?: (sketch: HasStartAndEndDate) => void
 }
@@ -32,12 +35,14 @@ export interface EventAreaViewProps {
 export function EventAreaView({
   start,
   days,
-  events,
+  events = [],
   dayPaddingRight,
   blockPadding,
+  selectedEventId,
   dragIntervalMs,
   minEventSizeMs,
   locale,
+  onEventSelected,
   onEventsChange,
   onEventSketched,
 }: EventAreaViewProps) {
@@ -153,70 +158,88 @@ export function EventAreaView({
             locale={locale}
           />
         ) : (
-          <EventViewWithDragObserver
-            key={block.key}
-            title={block.event.title}
-            start={block.event.start}
-            end={block.event.end}
-            top={block.top}
-            left={block.left}
-            height={block.height}
-            width={block.width}
-            locale={locale}
-            isFloating={block.isUpdate}
-            isTransparent={block.isBeingUpdated}
-            isMovable={!block.isUpdate}
-            isResizable
-            onDragStateChange={dragState =>
-              setDraggingEventUpdateState(
-                dragState && {
-                  behavior: dragState.behavior,
-                  eventId: block.event.id,
-                  eventEnd: block.event.end,
-                  eventDurationMs:
-                    block.event.end.getTime() - block.event.start.getTime(),
-                  initialClientX: dragState.initialClientX,
-                  initialClientY: dragState.initialClientY,
-                  clientX: dragState.clientX,
-                  clientY: dragState.clientY,
-                }
-              )
-            }
-            onDragConfirm={() => {
-              if (
-                !draggingEventUpdateState ||
-                !eventArea ||
-                !wrapperResizeObserverEntry
-              ) {
-                return
+          <>
+            <EventInfoModal
+              title={block.event.title}
+              start={block.event.start}
+              end={block.event.end}
+              isOpen={selectedEventId === block.event.id}
+              onTitleChange={title =>
+                onEventsChange?.(
+                  events.map(event =>
+                    event.id === block.event.id ? { ...event, title } : event
+                  )
+                )
               }
+              onClose={() => onEventSelected(undefined)}
+            />
 
-              const draggingCanvas: DraggingCanvas = {
-                getDateForPosition:
-                  eventArea.getDateForPosition.bind(eventArea),
-              }
-
-              const draggingEvent = new DraggingEventUpdate(
-                draggingEventUpdateState,
-                draggingCanvas,
-                { dragIntervalMs, minEventSizeMs }
-              )
-
-              const updatedEvents = (events || []).map(event => {
-                if (event.id === draggingEventUpdateState.eventId) {
-                  return {
-                    ...event,
-                    start: draggingEvent.start,
-                    end: draggingEvent.end,
+            <EventViewWithDragObserver
+              key={block.key}
+              title={block.event.title}
+              start={block.event.start}
+              end={block.event.end}
+              top={block.top}
+              left={block.left}
+              height={block.height}
+              width={block.width}
+              locale={locale}
+              isFloating={block.isUpdate || selectedEventId === block.event.id}
+              isTransparent={block.isBeingUpdated}
+              isMovable={!block.isUpdate}
+              isResizable
+              onClick={() => onEventSelected(block.event.id)}
+              onDragStateChange={dragState =>
+                setDraggingEventUpdateState(
+                  dragState && {
+                    behavior: dragState.behavior,
+                    eventId: block.event.id,
+                    eventEnd: block.event.end,
+                    eventDurationMs:
+                      block.event.end.getTime() - block.event.start.getTime(),
+                    initialClientX: dragState.initialClientX,
+                    initialClientY: dragState.initialClientY,
+                    clientX: dragState.clientX,
+                    clientY: dragState.clientY,
                   }
+                )
+              }
+              onDragConfirm={() => {
+                if (
+                  !draggingEventUpdateState ||
+                  !eventArea ||
+                  !wrapperResizeObserverEntry
+                ) {
+                  return
                 }
 
-                return event
-              })
+                const draggingCanvas: DraggingCanvas = {
+                  getDateForPosition:
+                    eventArea.getDateForPosition.bind(eventArea),
+                }
 
-              onEventsChange?.(updatedEvents)
-            }}
-          />
+                const draggingEvent = new DraggingEventUpdate(
+                  draggingEventUpdateState,
+                  draggingCanvas,
+                  { dragIntervalMs, minEventSizeMs }
+                )
+
+                const updatedEvents = events.map(event => {
+                  if (event.id === draggingEventUpdateState.eventId) {
+                    return {
+                      ...event,
+                      start: draggingEvent.start,
+                      end: draggingEvent.end,
+                    }
+                  }
+
+                  return event
+                })
+
+                onEventsChange?.(updatedEvents)
+              }}
+            />
+          </>
         )
       )}
 

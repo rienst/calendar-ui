@@ -1,6 +1,6 @@
 import classNames from 'classnames'
 import { format, Locale } from 'date-fns'
-import { DragEventHandler } from 'react'
+import { DragEventHandler, MouseEventHandler } from 'react'
 
 export interface EventViewProps {
   title?: string
@@ -15,6 +15,7 @@ export interface EventViewProps {
   locale?: Locale
   isMovable?: boolean
   isResizable?: boolean
+  onClick?: MouseEventHandler<HTMLDivElement>
   onDrag?: DragEventHandler<HTMLDivElement>
   onDragStart?: DragEventHandler<HTMLDivElement>
   onDragEnd?: DragEventHandler<HTMLDivElement>
@@ -26,6 +27,7 @@ export interface EventViewProps {
 export function EventView(props: EventViewProps) {
   return (
     <div
+      onClick={props.onClick}
       draggable={props.isMovable}
       onDragStart={props.onDragStart}
       onDrag={props.onDrag}

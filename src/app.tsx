@@ -7,6 +7,7 @@ export function App() {
     window.innerWidth < 768 ? 'day' : 'week'
   )
 
+  const [selectedEventId, setSelectedEventId] = useState<string>()
   const [events, setEvents] = useState<Event[]>([])
 
   return (
@@ -17,16 +18,14 @@ export function App() {
       view={view}
       events={events}
       onChangeView={setView}
+      selectedEventId={selectedEventId}
+      onEventSelected={setSelectedEventId}
       onEventsChange={setEvents}
-      onEventSketched={sketch =>
-        setEvents([
-          ...events,
-          {
-            id: Math.random().toString(),
-            ...sketch,
-          },
-        ])
-      }
+      onEventSketched={sketch => {
+        const id = Math.random().toString()
+        setEvents([...events, { id, ...sketch }])
+        setSelectedEventId(id)
+      }}
     />
   )
 }
