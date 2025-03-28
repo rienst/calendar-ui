@@ -1,15 +1,13 @@
 import { DragEventHandler, useCallback, useState } from 'react'
 
 export interface InitialDragState {
-  initialEventTop: number
-  initialEventLeft: number
+  initialClientY: number
+  initialClientX: number
 }
 
-export interface DragState {
-  initialEventTop: number
-  initialEventLeft: number
-  eventTop: number
-  eventLeft: number
+export interface DragState extends InitialDragState {
+  clientY: number
+  clientX: number
 }
 
 export interface DragObserver {
@@ -32,8 +30,8 @@ export function useDragObserver({
   const onDragStart = useCallback<DragEventHandler<Element>>(event => {
     event.stopPropagation()
     setInitialDragState({
-      initialEventTop: event.clientY,
-      initialEventLeft: event.clientX,
+      initialClientY: event.clientY,
+      initialClientX: event.clientX,
     })
   }, [])
 
@@ -53,8 +51,8 @@ export function useDragObserver({
 
       const state: DragState = {
         ...initialDragState,
-        eventTop: event.clientY,
-        eventLeft: event.clientX,
+        clientY: event.clientY,
+        clientX: event.clientX,
       }
 
       onStateChange?.(state)

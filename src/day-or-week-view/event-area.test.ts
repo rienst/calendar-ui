@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { EventArea, Event, EventUpdate } from './event-area'
+import { EventArea, Event, EventUpdate, HasStartAndEndDate } from './event-area'
 import { IArranger } from '../arranger'
 
 describe('EventArea', () => {
@@ -678,13 +678,13 @@ describe('EventArea', () => {
 
       expect(blocks).toHaveLength(2)
 
-      expect(blocks[0].event.start).toEqual(new Date('2021-01-01T12:00:00Z'))
-      expect(blocks[0].event.end).toEqual(new Date('2021-01-02T06:00:00Z'))
+      expect(blocks[0].event?.start).toEqual(new Date('2021-01-01T12:00:00Z'))
+      expect(blocks[0].event?.end).toEqual(new Date('2021-01-02T06:00:00Z'))
       expect(blocks[0].top).toBe(50)
       expect(blocks[0].height).toBe(50)
 
-      expect(blocks[0].event.start).toEqual(new Date('2021-01-01T12:00:00Z'))
-      expect(blocks[0].event.end).toEqual(new Date('2021-01-02T06:00:00Z'))
+      expect(blocks[0].event?.start).toEqual(new Date('2021-01-01T12:00:00Z'))
+      expect(blocks[0].event?.end).toEqual(new Date('2021-01-02T06:00:00Z'))
       expect(blocks[1].top).toBe(0)
       expect(blocks[1].height).toBe(25)
     })
@@ -738,10 +738,10 @@ describe('EventArea', () => {
       const [transparentBlock, draggingBlock] = area.getEventBlocks()
 
       expect(transparentBlock.key).toBe('1_0')
-      expect(transparentBlock.event.start).toEqual(
+      expect(transparentBlock.event?.start).toEqual(
         new Date('2021-01-01T00:00:00Z')
       )
-      expect(transparentBlock.event.end).toEqual(
+      expect(transparentBlock.event?.end).toEqual(
         new Date('2021-01-01T12:00:00Z')
       )
       expect(transparentBlock.isUpdate).toBe(false)
@@ -786,10 +786,10 @@ describe('EventArea', () => {
       ] = area.getEventBlocks()
 
       expect(transparentBlock1.key).toBe('1_0')
-      expect(transparentBlock1.event.start).toEqual(
+      expect(transparentBlock1.event?.start).toEqual(
         new Date('2021-01-01T06:00:00Z')
       )
-      expect(transparentBlock1.event.end).toEqual(
+      expect(transparentBlock1.event?.end).toEqual(
         new Date('2021-01-02T06:00:00Z')
       )
       expect(transparentBlock1.isUpdate).toBe(false)
@@ -798,10 +798,10 @@ describe('EventArea', () => {
       expect(transparentBlock1.height).toBe(75)
 
       expect(transparentBlock2.key).toBe('1_1')
-      expect(transparentBlock2.event.start).toEqual(
+      expect(transparentBlock2.event?.start).toEqual(
         new Date('2021-01-01T06:00:00Z')
       )
-      expect(transparentBlock2.event.end).toEqual(
+      expect(transparentBlock2.event?.end).toEqual(
         new Date('2021-01-02T06:00:00Z')
       )
       expect(transparentBlock2.isUpdate).toBe(false)
@@ -810,20 +810,24 @@ describe('EventArea', () => {
       expect(transparentBlock2.height).toBe(25)
 
       expect(draggingBlock1.key).toBe('1_0_drag')
-      expect(draggingBlock1.event.start).toEqual(
+      expect(draggingBlock1.event?.start).toEqual(
         new Date('2021-01-01T12:00:00Z')
       )
-      expect(draggingBlock1.event.end).toEqual(new Date('2021-01-02T12:00:00Z'))
+      expect(draggingBlock1.event?.end).toEqual(
+        new Date('2021-01-02T12:00:00Z')
+      )
       expect(draggingBlock1.isUpdate).toBe(true)
       expect(draggingBlock1.isBeingUpdated).toBe(false)
       expect(draggingBlock1.top).toBe(50)
       expect(draggingBlock1.height).toBe(50)
 
       expect(draggingBlock2.key).toBe('1_1_drag')
-      expect(draggingBlock2.event.start).toEqual(
+      expect(draggingBlock2.event?.start).toEqual(
         new Date('2021-01-01T12:00:00Z')
       )
-      expect(draggingBlock2.event.end).toEqual(new Date('2021-01-02T12:00:00Z'))
+      expect(draggingBlock2.event?.end).toEqual(
+        new Date('2021-01-02T12:00:00Z')
+      )
       expect(draggingBlock2.isUpdate).toBe(true)
       expect(draggingBlock2.isBeingUpdated).toBe(false)
       expect(draggingBlock2.top).toBe(0)
@@ -876,6 +880,55 @@ describe('EventArea', () => {
 
       expect(block1.key).toBe('1_0')
       expect(block2.key).toBe('1_1')
+    })
+
+    it('returns a sketch block when an event sketch is provided', () => {
+      const eventSketch: HasStartAndEndDate = {
+        start: new Date('2021-01-01T12:00:00Z'),
+        end: new Date('2021-01-02T00:00:00Z'),
+      }
+
+      const area = new EventArea({
+        start: new Date('2021-01-01T00:00:00Z'),
+        days: 1,
+        height: 100,
+        width: 100,
+        sketch: eventSketch,
+      })
+
+      const [block] = area.getEventBlocks()
+
+      expect(block.key).toBe('sketch_0')
+      expect(block.isSketch).toBe(true)
+      expect(block.top).toBe(50)
+      expect(block.height).toBe(50)
+    })
+
+    it('returns multiple sketch blocks when an multi-day event sketch is provided', () => {
+      const eventSketch: HasStartAndEndDate = {
+        start: new Date('2021-01-01T12:00:00Z'),
+        end: new Date('2021-01-02T06:00:00Z'),
+      }
+
+      const area = new EventArea({
+        start: new Date('2021-01-01T00:00:00Z'),
+        days: 2,
+        height: 100,
+        width: 100,
+        sketch: eventSketch,
+      })
+
+      const [block1, block2] = area.getEventBlocks()
+
+      expect(block1.key).toBe('sketch_0')
+      expect(block1.isSketch).toBe(true)
+      expect(block1.top).toBe(50)
+      expect(block1.height).toBe(50)
+
+      expect(block2.key).toBe('sketch_1')
+      expect(block2.isSketch).toBe(true)
+      expect(block2.top).toBe(0)
+      expect(block2.height).toBe(25)
     })
   })
 

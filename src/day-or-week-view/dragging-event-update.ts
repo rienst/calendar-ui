@@ -2,15 +2,15 @@ import { EventUpdate } from './event-area'
 
 export type DraggingBehavior = 'move' | 'resize'
 
-export interface DraggingEventState {
+export interface DraggingEventUpdateState {
   behavior: DraggingBehavior
   eventId: string
   eventEnd: Date
   eventDurationMs: number
-  initialEventBottom: number
-  initialEventLeft: number
-  eventBottom: number
-  eventLeft: number
+  initialClientY: number
+  initialClientX: number
+  clientY: number
+  clientX: number
 }
 
 export interface DraggingCanvas {
@@ -24,7 +24,7 @@ export interface EventDraggingOptions {
 
 export class DraggingEventUpdate implements EventUpdate {
   constructor(
-    private state: DraggingEventState,
+    private state: DraggingEventUpdateState,
     private canvas: DraggingCanvas,
     private options: EventDraggingOptions = {}
   ) {}
@@ -45,16 +45,16 @@ export class DraggingEventUpdate implements EventUpdate {
 
   get end() {
     const timeForInitialPosition = this.canvas.getDateForPosition(
-      this.state.initialEventLeft,
-      this.state.initialEventBottom
+      this.state.initialClientX,
+      this.state.initialClientY
     )
 
     const msBetweenInitialPositionAndEventEnd =
       this.state.eventEnd.getTime() - timeForInitialPosition.getTime()
 
     const timeForCurrentPosition = this.canvas.getDateForPosition(
-      this.state.eventLeft,
-      this.state.eventBottom
+      this.state.clientX,
+      this.state.clientY
     )
 
     const eventEndForCurrentPosition = new Date(

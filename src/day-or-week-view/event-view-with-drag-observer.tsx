@@ -9,14 +9,13 @@ export interface EventViewDragState extends DragState {
 }
 
 export interface EventViewWithDragObserverProps {
-  title: string
+  title?: string
   start: Date
   end: Date
   top: number
   left: number
   width: number
   height: number
-  minHeight?: number
   isFloating?: boolean
   isTransparent?: boolean
   locale?: Locale

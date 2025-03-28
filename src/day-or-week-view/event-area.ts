@@ -1,10 +1,8 @@
 import { ArrangeResult, IArranger } from '../arranger'
 import { NoopArranger } from '../noop-arranger'
 
-export interface Event {
+export interface Event extends HasStartAndEndDate {
   id: string
-  start: Date
-  end: Date
 }
 
 interface Position {
@@ -16,13 +14,27 @@ interface Position {
 
 export interface EventBlock<TEvent> extends Position {
   event: TEvent
+  sketch: undefined
   key: string
   isUpdate: boolean
   isBeingUpdated: boolean
+  isSketch: false
 }
 
-export interface EventUpdate {
+export interface EventSketchBlock extends Position {
+  event: undefined
+  sketch: HasStartAndEndDate
+  key: string
+  isUpdate: false
+  isBeingUpdated: false
+  isSketch: true
+}
+
+export interface EventUpdate extends HasStartAndEndDate {
   eventId: string
+}
+
+export interface HasStartAndEndDate {
   start: Date
   end: Date
 }
@@ -37,20 +49,22 @@ export interface EventAreaInit<TEvent> {
   dayPaddingRight?: number
   blockPadding?: number
   events?: TEvent[]
+  sketch?: HasStartAndEndDate
   update?: EventUpdate
 }
 
 export class EventArea<TEvent extends Event> {
-  start
-  days
-  height
-  width
-  top
-  left
-  dayPaddingRight
-  eventBlockPadding
-  events
-  update
+  start: Date
+  days: number
+  height: number
+  width: number
+  top: number
+  left: number
+  dayPaddingRight: number
+  blockPadding: number
+  events: TEvent[]
+  sketch?: HasStartAndEndDate
+  update?: EventUpdate
 
   private readonly dayMs = 1000 * 60 * 60 * 24
 
@@ -97,16 +111,22 @@ export class EventArea<TEvent extends Event> {
     this.top = init.top || 0
     this.left = init.left || 0
     this.dayPaddingRight = init.dayPaddingRight || 0
-    this.eventBlockPadding = init.blockPadding || 0
+    this.blockPadding = init.blockPadding || 0
     this.events = init.events || []
+    this.sketch = init.sketch
     this.update = init.update
   }
 
-  getEventBlocks(): EventBlock<TEvent>[] {
+  getEventBlocks(): (EventBlock<TEvent> | EventSketchBlock)[] {
     const standardEventBlocks = this.getStandardEventBlocks()
     const draggingEventBlocks = this.getDraggingEventBlocks()
+    const sketchEventBlocks = this.getSketchEventBlocks()
 
-    return [...standardEventBlocks, ...draggingEventBlocks]
+    return [
+      ...standardEventBlocks,
+      ...draggingEventBlocks,
+      ...sketchEventBlocks,
+    ]
   }
 
   private getStandardEventBlocks() {
@@ -170,6 +190,38 @@ export class EventArea<TEvent extends Event> {
       }))
   }
 
+  private getSketchEventBlocks(): EventSketchBlock[] {
+    const eventSketch = this.sketch
+
+    if (!eventSketch) {
+      return []
+    }
+
+    const sketchesByStartDay = this.getEventsByStartDay([
+      {
+        start: eventSketch.start,
+        end: eventSketch.end,
+      },
+    ])
+
+    return Object.values(sketchesByStartDay)
+      .flat()
+      .map((event, index) => {
+        const position = this.getPositionForEventBlockArrangeResult({
+          item: event,
+          column: 1,
+          columns: 1,
+        })
+
+        if (!position) {
+          return null
+        }
+
+        return this.constructEventSketchBlock(eventSketch, index, position)
+      })
+      .filter(block => block !== null)
+  }
+
   private arrangEvents(events: TEvent[]): ArrangeResult<TEvent>[] {
     const eventsByStartDay = this.getEventsByStartDay(events)
 
@@ -178,7 +230,9 @@ export class EventArea<TEvent extends Event> {
       .flat()
   }
 
-  private getEventsByStartDay(events: TEvent[]) {
+  private getEventsByStartDay<TEvent extends HasStartAndEndDate>(
+    events: TEvent[]
+  ) {
     const eventsSplitByDay = events
       .filter(event => this.isEventBlockInArea(event.start, event.end))
       .map(event => this.splitEventByDay(event))
@@ -187,7 +241,9 @@ export class EventArea<TEvent extends Event> {
     return this.divideEventsByStartDay(eventsSplitByDay)
   }
 
-  private splitEventByDay(event: TEvent): TEvent[] {
+  private splitEventByDay<TEvent extends HasStartAndEndDate>(
+    event: TEvent
+  ): TEvent[] {
     return Array.from({ length: this.days }, (_, index): TEvent | null => {
       const day = index + 1
       const startOfDay = this.getStartOfDay(day)
@@ -217,7 +273,9 @@ export class EventArea<TEvent extends Event> {
     }).filter(event => event !== null)
   }
 
-  private divideEventsByStartDay(events: TEvent[]): Record<number, TEvent[]> {
+  private divideEventsByStartDay<TEvent extends HasStartAndEndDate>(
+    events: TEvent[]
+  ): Record<number, TEvent[]> {
     return events.reduce((acc, eventBlock) => {
       const day = Math.floor(
         (eventBlock.start.getTime() - this.start.getTime()) / this.dayMs
@@ -248,8 +306,10 @@ export class EventArea<TEvent extends Event> {
     return {
       key: this.getEventBlockKey(event.id, event.start),
       event,
+      sketch: undefined,
       isUpdate: false,
       isBeingUpdated: this.isItemTransparent(event.id),
+      isSketch: false,
       ...position,
     }
   }
@@ -262,8 +322,26 @@ export class EventArea<TEvent extends Event> {
     return {
       key: `${event.id}_${index}_drag`,
       event,
+      sketch: undefined,
       isUpdate: true,
       isBeingUpdated: false,
+      isSketch: false,
+      ...position,
+    }
+  }
+
+  private constructEventSketchBlock(
+    sketch: HasStartAndEndDate,
+    index: number,
+    position: Position
+  ): EventSketchBlock {
+    return {
+      event: undefined,
+      sketch,
+      key: `sketch_${index}`,
+      isUpdate: false,
+      isBeingUpdated: false,
+      isSketch: true,
       ...position,
     }
   }
@@ -286,9 +364,9 @@ export class EventArea<TEvent extends Event> {
     return this.update.eventId === itemId
   }
 
-  private getPositionForEventBlockArrangeResult(
-    arrangeResult: ArrangeResult<TEvent>
-  ): Position | null {
+  private getPositionForEventBlockArrangeResult<
+    TEvent extends HasStartAndEndDate
+  >(arrangeResult: ArrangeResult<TEvent>): Position | null {
     const top = this.getEventBlockTop(arrangeResult.item.start)
     const height = this.getEventBlockHeight(
       arrangeResult.item.start,
@@ -348,7 +426,7 @@ export class EventArea<TEvent extends Event> {
 
     const eventDurationHeight = this.msToPx(eventDurationMs)
 
-    return eventDurationHeight - this.eventBlockPadding
+    return eventDurationHeight - this.blockPadding
   }
 
   private getEventBlockLeft(
@@ -379,7 +457,7 @@ export class EventArea<TEvent extends Event> {
   private getEventBlockWidth(columns: number): number {
     const columnWidth = this.dayWidthWithoutPadding / columns
 
-    return columnWidth - this.eventBlockPadding
+    return columnWidth - this.blockPadding
   }
 
   private getBlockStartOrAreaStart(blockStart: Date): Date {

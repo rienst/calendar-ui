@@ -1,4 +1,3 @@
-import { setHours, startOfToday, startOfTomorrow } from 'date-fns'
 import { DayOrWeekView, DayOrWeekViewType, Event } from './day-or-week-view'
 import { useState } from 'react'
 
@@ -8,32 +7,7 @@ export function App() {
     window.innerWidth < 768 ? 'day' : 'week'
   )
 
-  const [events, setEvents] = useState<Event[]>([
-    {
-      id: '1',
-      start: setHours(startOfToday(), 15),
-      end: setHours(startOfToday(), 17),
-      title: 'Spons halen',
-    },
-    {
-      id: '2',
-      start: setHours(startOfToday(), 20),
-      end: setHours(startOfTomorrow(), 4),
-      title: 'Werken',
-    },
-    {
-      id: '3',
-      start: setHours(startOfToday(), 16),
-      end: setHours(startOfToday(), 22),
-      title: 'Werken',
-    },
-    {
-      id: '4',
-      start: setHours(startOfToday(), 5),
-      end: setHours(startOfToday(), 7),
-      title: 'Werken',
-    },
-  ])
+  const [events, setEvents] = useState<Event[]>([])
 
   return (
     <DayOrWeekView
@@ -44,6 +18,15 @@ export function App() {
       events={events}
       onChangeView={setView}
       onEventsChange={setEvents}
+      onEventSketched={sketch =>
+        setEvents([
+          ...events,
+          {
+            id: Math.random().toString(),
+            ...sketch,
+          },
+        ])
+      }
     />
   )
 }

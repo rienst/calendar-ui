@@ -14,6 +14,7 @@ import { Tabs } from './tabs'
 import { ArrowButtons } from './arrow-buttons'
 import { Button } from './button'
 import { EventAreaView } from './event-area-view'
+import { HasStartAndEndDate } from './event-area'
 
 export type DayOrWeekViewType = 'week' | 'day'
 
@@ -26,13 +27,14 @@ export interface DayOrWeekViewProps {
   onChangeViewingDate?: (date: Date) => void
   onChangeView?: (view: DayOrWeekViewType) => void
   onEventsChange?: (events: Event[]) => void
+  onEventSketched?: (sketch: HasStartAndEndDate) => void
 }
 
 export interface Event {
   id: string
+  title?: string
   start: Date
   end: Date
-  title: string
 }
 
 export function DayOrWeekView(props: DayOrWeekViewProps) {
@@ -128,8 +130,9 @@ export function DayOrWeekView(props: DayOrWeekViewProps) {
           blockPadding={2}
           dragIntervalMs={15 * 60 * 1000}
           minEventSizeMs={30 * 60 * 1000}
-          onEventsChange={props.onEventsChange}
           locale={props.locale}
+          onEventsChange={props.onEventsChange}
+          onEventSketched={props.onEventSketched}
         />
       </div>
     </div>

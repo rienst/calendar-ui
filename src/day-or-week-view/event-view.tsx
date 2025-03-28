@@ -3,14 +3,13 @@ import { format, Locale } from 'date-fns'
 import { DragEventHandler } from 'react'
 
 export interface EventViewProps {
-  title: string
+  title?: string
   start: Date
   end: Date
   top: number
   left: number
   width: number
   height: number
-  minHeight?: number
   isFloating?: boolean
   isTransparent?: boolean
   locale?: Locale
@@ -44,11 +43,10 @@ export function EventView(props: EventViewProps) {
         left: props.left,
         width: props.width,
         height: props.height,
-        minHeight: props.minHeight,
       }}
     >
       <div className="shrink-0 font-semibold overflow-hidden text-nowrap">
-        {props.title}
+        {props.title || '(No title)'}
       </div>
 
       <div className="shrink-0 whitespace-nowrap">
