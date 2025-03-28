@@ -77,7 +77,7 @@ export function DayOrWeekView(props: DayOrWeekViewProps) {
         <div className="flex items-center justify-between pl-4 py-2 pr-2 sm:p-4">
           <div className="flex gap-2 sm:gap-4 items-center justify-between sm:justify-start w-full">
             <div className="flex gap-2 sm:gap-4 items-center order-2 sm:order-1">
-              <Button onClick={handleTodayButtonClick}>Vandaag</Button>
+              <Button onClick={handleTodayButtonClick}>Today</Button>
 
               <ArrowButtons
                 onClickPrevious={handlePreviousArrowClick}
@@ -97,7 +97,7 @@ export function DayOrWeekView(props: DayOrWeekViewProps) {
           <div className="hidden sm:block">
             <Tabs
               options={[
-                { label: 'Dag', value: 'day' },
+                { label: 'Day', value: 'day' },
                 { label: 'Week', value: 'week' },
               ]}
               value={view}
