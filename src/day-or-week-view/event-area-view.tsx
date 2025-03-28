@@ -171,7 +171,7 @@ export function EventAreaView({
                   )
                 )
               }
-              onClose={() => onEventSelected(undefined)}
+              onClose={() => onEventSelected?.(undefined)}
             />
 
             <EventViewWithDragObserver
@@ -188,7 +188,7 @@ export function EventAreaView({
               isTransparent={block.isBeingUpdated}
               isMovable={!block.isUpdate}
               isResizable
-              onClick={() => onEventSelected(block.event.id)}
+              onClick={() => onEventSelected?.(block.event.id)}
               onDragStateChange={dragState =>
                 setDraggingEventUpdateState(
                   dragState && {
