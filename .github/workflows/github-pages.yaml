@@ -37,7 +37,7 @@ jobs:
         run: |
           mkdir dist
           mv apps/react/dist dist/react
-          mv apps/angular/dist/angular-calendar dist/angular
+          mv apps/angular/dist/browser dist/angular
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
