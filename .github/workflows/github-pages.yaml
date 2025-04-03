@@ -35,6 +35,7 @@ jobs:
         run: npm run build
       - name: Assemble dist directory
         run: |
+          mkdir dist
           mv apps/react/dist dist/react
           mv apps/angular/dist/angular-calendar dist/angular
       - name: Setup Pages
