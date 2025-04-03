@@ -1,0 +1,18 @@
+<div class="flex pl-20">
+  @for (day of days(); track day) {
+  <div
+    class="overflow-hidden basis-0 grow py-2 flex items-center justify-center"
+  >
+    <button
+      (click)="handleSelectDay(day)"
+      [ngClass]="{
+				'truncate text-center text-lg font-medium px-3 rounded-lg cursor-pointer': true,
+				'bg-rose-500 text-white hover:bg-rose-600': isToday(day),
+				'hover:bg-neutral-500/25': !isToday(day),
+			}"
+    >
+      {{ day | date : "EEEEEE d" }}
+    </button>
+  </div>
+  }
+</div>

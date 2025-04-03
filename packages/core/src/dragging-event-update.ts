@@ -1,3 +1,4 @@
+import { DraggingCanvas } from './dragging-canvas'
 import { EventUpdate } from './event-area'
 
 export type DraggingBehavior = 'move' | 'resize'
@@ -11,10 +12,6 @@ export interface DraggingEventUpdateState {
   initialClientX: number
   clientY: number
   clientX: number
-}
-
-export interface DraggingCanvas {
-  getDateForPosition: (x: number, y: number) => Date
 }
 
 export interface EventDraggingOptions {

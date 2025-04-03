@@ -1,9 +1,9 @@
+import { MouseEventHandler } from 'react'
 import { Locale } from 'date-fns'
+import { DraggingBehavior } from '@calendar-ui/core'
 import { EventView } from './event-view'
 import { DragState, useDragObserver } from '../hooks/use-drag-observer'
 import { useInvisibleDragHandlers } from '../hooks/use-invisible-drag-handlers'
-import { DraggingBehavior } from './dragging-event-update'
-import { MouseEventHandler } from 'react'
 
 export interface EventViewDragState extends DragState {
   behavior: DraggingBehavior

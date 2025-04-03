@@ -1,0 +1,55 @@
+<div
+  class="relative flex w-full"
+  draggable="true"
+  invisibleDrag
+  dragObserver
+  resizeObserver
+  (observeDrag)="handleDrag($event)"
+  (confirmDrag)="handleConfirmSketchEvent()"
+  (observeResize)="handleWrapperResize($event)"
+>
+  @for (block of eventArea()?.getEventBlocks(); track block.key) { @if
+  (block.isSketch) {
+  <app-event
+    [start]="block.sketch.start"
+    [end]="block.sketch.end"
+    [top]="block.top"
+    [left]="block.left"
+    [height]="block.height"
+    [width]="block.width"
+    [isFloating]="true"
+  />
+  } @else {
+  <app-event-info-modal
+    [title]="block.event.title"
+    [start]="block.event.start"
+    [end]="block.event.end"
+    [isOpen]="selectedEventId() === block.event.id"
+    (close)="handleCloseEventInfoModal()"
+    (titleChange)="handleChangeEventTitle(block.event.id, $event)"
+  />
+  <app-event
+    draggable="true"
+    invisibleDrag
+    dragObserver
+    [title]="block.event.title"
+    [start]="block.event.start"
+    [end]="block.event.end"
+    [top]="block.top"
+    [left]="block.left"
+    [height]="block.height"
+    [width]="block.width"
+    [isFloating]="block.isUpdate || selectedEventId() === block.event.id"
+    [isTransparent]="block.isBeingUpdated"
+    [isMovable]="block.isUpdate"
+    [isResizable]="true"
+    (click)="handleSelectEvent(block.event.id)"
+    (observeDrag)="handleDragEvent('move', block.event, $event)"
+    (confirmDrag)="handleConfirmDragEvent()"
+    (resize)="handleDragEvent('resize', block.event, $event)"
+    (confirmResize)="handleConfirmDragEvent()"
+  />
+  } }
+
+  <app-event-area-grid [days]="days()" [hours]="24" />
+</div>

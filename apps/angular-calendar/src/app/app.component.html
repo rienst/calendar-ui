@@ -1,0 +1,12 @@
+<app-day-or-week-view
+  [viewingDate]="viewingDate()"
+  [view]="view()"
+  [events]="events()"
+  [selectedEventId]="selectedEventId()"
+  [weekStartsOn]="1"
+  (changeEvents)="handleChangeEvents($event)"
+  (changeView)="handleChangeView($event)"
+  (changeViewingDate)="handleChangeViewingDate($event)"
+  (selectEvent)="handleSelectEvent($event)"
+  (sketchEvent)="handleSketchEvent($event)"
+/>

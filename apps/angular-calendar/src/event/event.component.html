@@ -1,0 +1,18 @@
+<div class="shrink-0 font-semibold overflow-hidden text-nowrap">
+  {{ this.title() || "(No title)" }}
+</div>
+
+<div class="shrink-0 whitespace-nowrap">
+  {{ start() | date : "shortTime" }} - {{ end() | date : "shortTime" }}
+</div>
+
+@if (isResizable()) {
+<div
+  draggable="true"
+  invisibleDrag
+  dragObserver
+  class="absolute left-0 w-full bottom-0 h-2 cursor-ns-resize"
+  (observeDrag)="handleDragResizeBar($event)"
+  (confirmDrag)="handleConfirmDragResizeBar()"
+></div>
+}

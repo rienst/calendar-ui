@@ -1,19 +1,20 @@
 import { Locale } from 'date-fns'
-import { Event } from '.'
 import { useMemo, useState } from 'react'
-import { EventAreaGrid } from './event-area-grid'
-import { EventArea, HasStartAndEndDate } from './event-area'
-import { useResizeObserver } from '../hooks/use-resize-observer'
-import { Arranger } from '../arranger'
-import { EventViewWithDragObserver } from './event-view-with-drag-observer'
 import {
+  EventArea,
+  HasStartAndEndDate,
   DraggingCanvas,
+  DraggingEventSketch,
   DraggingEventUpdateState,
   DraggingEventUpdate,
-} from './dragging-event-update'
+  Arranger,
+} from '@calendar-ui/core'
+import { Event } from '.'
+import { EventAreaGrid } from './event-area-grid'
+import { useResizeObserver } from '../hooks/use-resize-observer'
+import { EventViewWithDragObserver } from './event-view-with-drag-observer'
 import { DragState, useDragObserver } from '../hooks/use-drag-observer'
 import { useInvisibleDragHandlers } from '../hooks/use-invisible-drag-handlers'
-import { DraggingEventSketch } from './dragging-event-sketch'
 import { EventView } from './event-view'
 import { EventInfoModal } from './event-info-modal'
 

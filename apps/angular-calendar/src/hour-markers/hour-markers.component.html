@@ -1,0 +1,11 @@
+<div>
+  @for (hour of hours(); track hour) {
+  <div
+    class="relative text-xs tabular-nums text-neutral-600 h-12 w-20 text-right dark:text-neutral-300"
+  >
+    <div class="absolute -top-2 right-0 px-2">
+      {{ hour | date : "h:mm a" }}
+    </div>
+  </div>
+  }
+</div>

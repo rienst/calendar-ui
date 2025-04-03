@@ -46,7 +46,7 @@ export class Arranger implements IArranger {
       if (this.dateToNumber(timespan.start) >= lastEnd) {
         groups.push([timespan])
       } else {
-        groups[groups.length - 1].push(timespan)
+        groups[groups.length - 1]?.push(timespan)
       }
 
       lastEnd = Math.max(lastEnd, this.dateToNumber(timespan.end))

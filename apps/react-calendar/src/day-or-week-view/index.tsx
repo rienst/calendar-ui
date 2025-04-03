@@ -8,13 +8,13 @@ import {
   startOfDay,
   startOfWeek,
 } from 'date-fns'
+import { HasStartAndEndDate } from '@calendar-ui/core'
 import { HourMarkers } from './hour-markers'
 import { DayMarkers } from './day-markers'
 import { Tabs } from './tabs'
 import { ArrowButtons } from './arrow-buttons'
 import { Button } from './button'
 import { EventAreaView } from './event-area-view'
-import { HasStartAndEndDate } from './event-area'
 
 export type DayOrWeekViewType = 'week' | 'day'
 

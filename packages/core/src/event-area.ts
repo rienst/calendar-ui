@@ -1,5 +1,5 @@
-import { ArrangeResult, IArranger } from '../arranger'
-import { NoopArranger } from '../noop-arranger'
+import { ArrangeResult, IArranger } from './arranger'
+import { NoopArranger } from './noop-arranger'
 
 export interface Event extends HasStartAndEndDate {
   id: string

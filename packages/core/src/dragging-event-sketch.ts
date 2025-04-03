@@ -1,14 +1,11 @@
 import { HasStartAndEndDate } from './event-area'
+import { DraggingCanvas } from './dragging-canvas'
 
 export interface DraggingEventSketchState {
   initialClientY: number
   initialClientX: number
   clientY: number
   clientX: number
-}
-
-export interface DraggingCanvas {
-  getDateForPosition: (x: number, y: number) => Date
 }
 
 export interface EventSketchingOptions {
