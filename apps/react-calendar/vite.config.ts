@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  base: '/react-calendar/',
+  base: '/calendar-ui/react/',
   plugins: [react(), tailwindcss()],
 })

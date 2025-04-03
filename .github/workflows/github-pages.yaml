@@ -34,8 +34,9 @@ jobs:
       - name: Build
         run: npm run build
       - name: Assemble dist directory
-        run: mv apps/react/dist dist/react
-        run: mv apps/angular/dist/angular-calendar dist/angular
+        run: |
+          mv apps/react/dist dist/react
+          mv apps/angular/dist/angular-calendar dist/angular
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
