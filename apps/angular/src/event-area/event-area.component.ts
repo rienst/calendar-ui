@@ -214,6 +214,12 @@ export class EventAreaComponent {
     this.changeEvents.emit(updatedEvents)
   }
 
+  handleDeleteEvent(eventId: string) {
+    const updatedEvents = this.events().filter(event => event.id !== eventId)
+
+    this.changeEvents.emit(updatedEvents)
+  }
+
   handleCloseEventInfoModal() {
     this.selectEvent.emit(undefined)
   }

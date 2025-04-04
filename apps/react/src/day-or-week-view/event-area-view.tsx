@@ -172,6 +172,11 @@ export function EventAreaView({
                   )
                 )
               }
+              onDelete={() =>
+                onEventsChange?.(
+                  events.filter(event => event.id !== block.event.id)
+                )
+              }
               onClose={() => onEventSelected?.(undefined)}
             />
 

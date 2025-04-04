@@ -16,7 +16,7 @@ export function ProjectBanner() {
         <a
           href="https://rienst.github.io/calendar-ui/angular/"
           target="_blank"
-          className="text-blue-600 underline underline-offset-2"
+          className="text-blue-600 underline underline-offset-2 dark:text-blue-400"
         >
           Angular version
         </a>{' '}
@@ -24,7 +24,7 @@ export function ProjectBanner() {
         <a
           href="https://github.com/rienst/calendar-ui"
           target="_blank"
-          className="text-blue-600 underline underline-offset-2"
+          className="text-blue-600 underline underline-offset-2 dark:text-blue-400"
         >
           source on GitHub
         </a>

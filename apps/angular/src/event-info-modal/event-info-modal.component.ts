@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common'
+import { FormsModule } from '@angular/forms'
 import {
   Component,
   DestroyRef,
@@ -10,7 +10,7 @@ import {
   model,
   output,
   viewChild,
-} from '@angular/core';
+} from '@angular/core'
 
 @Component({
   selector: 'app-event-info-modal',
@@ -18,43 +18,48 @@ import {
   imports: [CommonModule, FormsModule],
 })
 export class EventInfoModalComponent {
-  private inputElement = viewChild<ElementRef<HTMLInputElement>>('input');
-  private destroyRef = inject(DestroyRef);
+  private inputElement = viewChild<ElementRef<HTMLInputElement>>('input')
+  private destroyRef = inject(DestroyRef)
 
   constructor() {
-    const abortController = new AbortController();
+    const abortController = new AbortController()
 
     window.addEventListener(
       'keydown',
-      (event) => {
+      event => {
         if (event.key === 'Escape') {
-          this.close.emit();
+          this.close.emit()
         }
       },
       { signal: abortController.signal }
-    );
+    )
 
     effect(() => {
-      const input = this.inputElement();
+      const input = this.inputElement()
 
       if (input && this.isOpen()) {
-        input.nativeElement.focus();
+        input.nativeElement.focus()
       }
-    });
+    })
 
     this.destroyRef.onDestroy(() => {
-      abortController.abort();
-    });
+      abortController.abort()
+    })
   }
 
-  isOpen = input.required<boolean>();
-  start = input.required<Date>();
-  end = input.required<Date>();
-  title = model<string | undefined>('');
+  isOpen = input.required<boolean>()
+  start = input.required<Date>()
+  end = input.required<Date>()
+  title = model<string | undefined>('')
 
-  close = output();
+  deleteEvent = output()
+  close = output()
+
+  handleDelete() {
+    this.deleteEvent.emit()
+  }
 
   handleClose() {
-    this.close.emit();
+    this.close.emit()
   }
 }
