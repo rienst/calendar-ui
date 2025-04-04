@@ -19,7 +19,7 @@ export function EventInfoModal(props: EventInfoModalProps) {
         <div className="px-6 w-full max-w-screen-sm fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-60">
           <Content className="border-2 border-transparent relative flex flex-col gap-2 p-12 rounded-xl bg-white/75 dark:bg-neutral-800/75 shadow-2xl shadow-black/50 dark:border-white/25 backdrop-blur-2xl">
             <input
-              className="border-b-2 border-transparent text-2xl w-full pb-1 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
+              className="border-b-2 border-transparent text-2xl w-full pb-1 focus:outline-none focus:border-blue-500 placeholder:text-black/50 dark:focus:border-blue-400 dark:placeholder:text-white/50"
               placeholder="(No title)"
               value={props.title}
               onChange={e => props.onTitleChange?.(e.target.value)}
