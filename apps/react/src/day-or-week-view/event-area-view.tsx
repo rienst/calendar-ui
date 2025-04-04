@@ -155,7 +155,6 @@ export function EventAreaView({
           title={selectedEvent.title}
           start={selectedEvent.start}
           end={selectedEvent.end}
-          isOpen={selectedEventId === selectedEvent.id}
           onTitleChange={title =>
             onEventsChange?.(
               events.map(event =>

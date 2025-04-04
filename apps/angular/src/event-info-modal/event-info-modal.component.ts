@@ -2,10 +2,8 @@ import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import {
   Component,
-  DestroyRef,
   effect,
   ElementRef,
-  inject,
   input,
   model,
   output,
@@ -18,36 +16,12 @@ import {
   imports: [CommonModule, FormsModule],
 })
 export class EventInfoModalComponent {
-  private inputElement = viewChild<ElementRef<HTMLInputElement>>('input')
-  private destroyRef = inject(DestroyRef)
+  dialogRef = viewChild<ElementRef<HTMLDialogElement>>('dialog')
 
   constructor() {
-    const abortController = new AbortController()
-
-    window.addEventListener(
-      'keydown',
-      event => {
-        if (event.key === 'Escape') {
-          this.close.emit()
-        }
-      },
-      { signal: abortController.signal }
-    )
-
-    effect(() => {
-      const input = this.inputElement()
-
-      if (input && this.isOpen()) {
-        input.nativeElement.focus()
-      }
-    })
-
-    this.destroyRef.onDestroy(() => {
-      abortController.abort()
-    })
+    effect(() => this.dialogRef()?.nativeElement?.showModal())
   }
 
-  isOpen = input.required<boolean>()
   start = input.required<Date>()
   end = input.required<Date>()
   title = model<string | undefined>('')
