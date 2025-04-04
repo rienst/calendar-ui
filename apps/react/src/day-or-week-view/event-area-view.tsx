@@ -47,6 +47,10 @@ export function EventAreaView({
   onEventsChange,
   onEventSketched,
 }: EventAreaViewProps) {
+  const selectedEvent = useMemo(() => {
+    return events.find(event => event.id === selectedEventId)
+  }, [events, selectedEventId])
+
   const [eventSketchState, setEventSketchState] = useState<DragState>()
   const [draggingEventUpdateState, setDraggingEventUpdateState] =
     useState<DraggingEventUpdateState>()
@@ -146,6 +150,28 @@ export function EventAreaView({
       onDragStart={invisibleCreateEventHandlers.onDragStart}
       onDragEnd={invisibleCreateEventHandlers.onDragEnd}
     >
+      {selectedEvent && (
+        <EventInfoModal
+          title={selectedEvent.title}
+          start={selectedEvent.start}
+          end={selectedEvent.end}
+          isOpen={selectedEventId === selectedEvent.id}
+          onTitleChange={title =>
+            onEventsChange?.(
+              events.map(event =>
+                event.id === selectedEvent.id ? { ...event, title } : event
+              )
+            )
+          }
+          onDelete={() =>
+            onEventsChange?.(
+              events.filter(event => event.id !== selectedEvent.id)
+            )
+          }
+          onClose={() => onEventSelected?.(undefined)}
+        />
+      )}
+
       {eventArea?.getEventBlocks().map(block =>
         block.isSketch ? (
           <EventView
@@ -159,93 +185,71 @@ export function EventAreaView({
             locale={locale}
           />
         ) : (
-          <>
-            <EventInfoModal
-              title={block.event.title}
-              start={block.event.start}
-              end={block.event.end}
-              isOpen={selectedEventId === block.event.id}
-              onTitleChange={title =>
-                onEventsChange?.(
-                  events.map(event =>
-                    event.id === block.event.id ? { ...event, title } : event
-                  )
-                )
+          <EventViewWithDragObserver
+            key={block.key}
+            title={block.event.title}
+            start={block.event.start}
+            end={block.event.end}
+            top={block.top}
+            left={block.left}
+            height={block.height}
+            width={block.width}
+            locale={locale}
+            isFloating={block.isUpdate || selectedEventId === block.event.id}
+            isTransparent={block.isBeingUpdated}
+            isMovable={!block.isUpdate}
+            isResizable
+            onClick={() => onEventSelected?.(block.event.id)}
+            onDragStateChange={dragState =>
+              setDraggingEventUpdateState(
+                dragState && {
+                  behavior: dragState.behavior,
+                  eventId: block.event.id,
+                  eventEnd: block.event.end,
+                  eventDurationMs:
+                    block.event.end.getTime() - block.event.start.getTime(),
+                  initialClientX: dragState.initialClientX,
+                  initialClientY: dragState.initialClientY,
+                  clientX: dragState.clientX,
+                  clientY: dragState.clientY,
+                }
+              )
+            }
+            onDragConfirm={() => {
+              if (
+                !draggingEventUpdateState ||
+                !eventArea ||
+                !wrapperResizeObserverEntry
+              ) {
+                return
               }
-              onDelete={() =>
-                onEventsChange?.(
-                  events.filter(event => event.id !== block.event.id)
-                )
-              }
-              onClose={() => onEventSelected?.(undefined)}
-            />
 
-            <EventViewWithDragObserver
-              key={block.key}
-              title={block.event.title}
-              start={block.event.start}
-              end={block.event.end}
-              top={block.top}
-              left={block.left}
-              height={block.height}
-              width={block.width}
-              locale={locale}
-              isFloating={block.isUpdate || selectedEventId === block.event.id}
-              isTransparent={block.isBeingUpdated}
-              isMovable={!block.isUpdate}
-              isResizable
-              onClick={() => onEventSelected?.(block.event.id)}
-              onDragStateChange={dragState =>
-                setDraggingEventUpdateState(
-                  dragState && {
-                    behavior: dragState.behavior,
-                    eventId: block.event.id,
-                    eventEnd: block.event.end,
-                    eventDurationMs:
-                      block.event.end.getTime() - block.event.start.getTime(),
-                    initialClientX: dragState.initialClientX,
-                    initialClientY: dragState.initialClientY,
-                    clientX: dragState.clientX,
-                    clientY: dragState.clientY,
-                  }
-                )
+              const draggingCanvas: DraggingCanvas = {
+                getDateForPosition:
+                  eventArea.getDateForPosition.bind(eventArea),
               }
-              onDragConfirm={() => {
-                if (
-                  !draggingEventUpdateState ||
-                  !eventArea ||
-                  !wrapperResizeObserverEntry
-                ) {
-                  return
+
+              const draggingEvent = new DraggingEventUpdate(
+                draggingEventUpdateState,
+                draggingCanvas,
+                { dragIntervalMs, minEventSizeMs }
+              )
+
+              const updatedEvents = events.map(event => {
+                if (event.id === draggingEventUpdateState.eventId) {
+                  return {
+                    ...event,
+                    start: draggingEvent.start,
+                    end: draggingEvent.end,
+                  }
                 }
 
-                const draggingCanvas: DraggingCanvas = {
-                  getDateForPosition:
-                    eventArea.getDateForPosition.bind(eventArea),
-                }
+                return event
+              })
 
-                const draggingEvent = new DraggingEventUpdate(
-                  draggingEventUpdateState,
-                  draggingCanvas,
-                  { dragIntervalMs, minEventSizeMs }
-                )
-
-                const updatedEvents = events.map(event => {
-                  if (event.id === draggingEventUpdateState.eventId) {
-                    return {
-                      ...event,
-                      start: draggingEvent.start,
-                      end: draggingEvent.end,
-                    }
-                  }
-
-                  return event
-                })
-
-                onEventsChange?.(updatedEvents)
-              }}
-            />
-          </>
+              onEventsChange?.(updatedEvents)
+            }}
+          />
         )
       )}
 

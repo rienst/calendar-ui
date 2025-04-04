@@ -8,7 +8,17 @@
   (confirmDrag)="handleConfirmSketchEvent()"
   (observeResize)="handleWrapperResize($event)"
 >
-  @for (block of eventArea()?.getEventBlocks(); track block.key) { @if
+  @let _selectedEvent = selectedEvent(); @if (_selectedEvent) {
+  <app-event-info-modal
+    [title]="_selectedEvent.title"
+    [start]="_selectedEvent.start"
+    [end]="_selectedEvent.end"
+    [isOpen]="true"
+    (titleChange)="handleChangeEventTitle(_selectedEvent.id, $event)"
+    (deleteEvent)="handleDeleteEvent(_selectedEvent.id)"
+    (close)="handleCloseEventInfoModal()"
+  />
+  } @for (block of eventArea()?.getEventBlocks(); track block.key) { @if
   (block.isSketch) {
   <app-event
     [start]="block.sketch.start"
@@ -20,15 +30,6 @@
     [isFloating]="true"
   />
   } @else {
-  <app-event-info-modal
-    [title]="block.event.title"
-    [start]="block.event.start"
-    [end]="block.event.end"
-    [isOpen]="selectedEventId() === block.event.id"
-    (titleChange)="handleChangeEventTitle(block.event.id, $event)"
-    (deleteEvent)="handleDeleteEvent(block.event.id)"
-    (close)="handleCloseEventInfoModal()"
-  />
   <app-event
     draggable="true"
     invisibleDrag

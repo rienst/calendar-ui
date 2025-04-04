@@ -47,6 +47,14 @@ export class EventAreaComponent {
   changeEvents = output<Event[]>()
   sketchEvent = output<HasStartAndEndDate>()
 
+  selectedEvent = computed(() => {
+    const selectedEventId = this.selectedEventId()
+
+    return !!selectedEventId
+      ? this.events().find(event => event.id === selectedEventId)
+      : undefined
+  })
+
   eventSketchState = signal<DragState | undefined>(undefined)
   draggingEventUpdateState = signal<DraggingEventUpdateState | undefined>(
     undefined

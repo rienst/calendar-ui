@@ -33,7 +33,7 @@ export function EventInfoModal(props: EventInfoModalProps) {
 
             <div className="absolute top-2 right-2 flex items-center gap-1">
               <button
-                className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer hover:bg-rose-500/15 hover:text-rose-700 dark:hover:bg-rose-800 dark:hover:text-white"
+                className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer hover:bg-rose-500/15 hover:text-rose-700 dark:hover:bg-rose-500/50 dark:hover:text-white"
                 onClick={props.onDelete}
               >
                 <svg
@@ -48,7 +48,7 @@ export function EventInfoModal(props: EventInfoModalProps) {
                 </svg>
               </button>
 
-              <Close className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer hover:bg-neutral-500/15 dark:hover:bg-neutral-700">
+              <Close className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer hover:bg-neutral-500/15 dark:hover:bg-neutral-400/25">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
