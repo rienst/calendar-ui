@@ -1,9 +1,11 @@
 @for (x of arrayOfLength(days()); track x) {
-<div class="basis-0 grow">
+<div class="relative basis-0 grow">
   @for (x of arrayOfLength(hours()); track x) {
   <div
     class="border-b border-l border-black/15 h-12 dark:border-white/15"
   ></div>
+  } @if (isCurrentDay(x)) {
+  <app-current-hour-marker />
   }
 </div>
 }

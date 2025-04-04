@@ -253,7 +253,7 @@ export function EventAreaView({
         )
       )}
 
-      <EventAreaGrid days={days} hours={24} />
+      <EventAreaGrid start={start} days={days} hours={24} />
     </div>
   )
 }
