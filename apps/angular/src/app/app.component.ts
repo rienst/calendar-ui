@@ -5,24 +5,18 @@ import {
   Event,
   DayOrWeekViewComponent,
 } from '../day-or-week-view/day-or-week-view.component'
+import { ProjectBannerComponent } from '../project-banner/project-banner.component'
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  imports: [DayOrWeekViewComponent],
+  imports: [DayOrWeekViewComponent, ProjectBannerComponent],
 })
 export class AppComponent {
   viewingDate = signal(new Date())
   view = signal<DayOrWeekViewType>(window.innerWidth < 768 ? 'day' : 'week')
   selectedEventId = signal<string | undefined>(undefined)
-  events = signal<Event[]>([
-    {
-      id: '1',
-      start: new Date(),
-      end: new Date(new Date().getTime() + 60 * 60 * 1000),
-      title: 'Event 1',
-    },
-  ])
+  events = signal<Event[]>([])
 
   handleChangeViewingDate(viewingDate: Date) {
     this.viewingDate.set(viewingDate)
